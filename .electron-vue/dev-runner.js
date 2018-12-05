@@ -8,6 +8,7 @@ const { spawn } = require('child_process')
 const webpack = require('webpack')
 const WebpackDevServer = require('webpack-dev-server')
 const webpackHotMiddleware = require('webpack-hot-middleware')
+const loadEnvVars = require('./load-env-vars');
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
@@ -176,6 +177,8 @@ function greeting () {
 }
 
 function init () {
+  loadEnvVars();
+
   greeting()
 
   Promise.all([startRenderer(), startMain()])

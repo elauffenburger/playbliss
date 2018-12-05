@@ -12,7 +12,8 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "spotify-api"
     ],
     "paths": {
       "@/*": [
@@ -24,14 +25,18 @@
       "dom",
       "dom.iterable",
       "scripthost"
-    ]
+    ],
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx", "src/main/index.js", "src/renderer/main.js", "src/main/index.dev.js", "src/main/index.js"
+    "tests/**/*.tsx",
+    "src/main/index.js",
+    "src/renderer/main.ts",
+    "src/main/index.dev.js",
+    "src/main/index.js",
   ],
   "exclude": [
     "node_modules"

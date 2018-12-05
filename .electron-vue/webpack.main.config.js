@@ -34,7 +34,9 @@ let mainConfig = {
         exclude: /node_modules/,
         use: {
           loader: 'ts-loader',
-          options: { }
+          options: {
+            appendTsSuffixTo: [/\.vue$/]
+          }
         }
       },
       {

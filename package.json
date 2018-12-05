@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "spotify-web-api-node": "^4.0.0",
     "vue": "^2.5.16",
     "vue-class-component": "^6.0.0",
     "vue-electron": "^1.0.6",
@@ -30,6 +31,7 @@
     "vuex-electron": "^1.0.0"
   },
   "devDependencies": {
+    "@types/spotify-api": "0.0.0",
     "@vue/cli-plugin-eslint": "^3.2.1",
     "@vue/cli-plugin-typescript": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
@@ -76,6 +78,8 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "^0.0.32",
     "karma-webpack": "^3.0.0",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
     "mini-css-extract-plugin": "0.4.0",
     "mocha": "^5.2.0",
     "multispinner": "^0.2.1",

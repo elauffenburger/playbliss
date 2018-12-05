@@ -2,13 +2,18 @@
 
 process.env.NODE_ENV = 'production'
 
-const { say } = require('cfonts')
+const {
+  say
+} = require('cfonts')
 const chalk = require('chalk')
 const del = require('del')
-const { spawn } = require('child_process')
+const {
+  spawn
+} = require('child_process')
 const webpack = require('webpack')
 const Multispinner = require('multispinner')
 
+const loadEnvVars = require('./load-env-vars');
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
@@ -23,13 +28,15 @@ if (process.env.BUILD_TARGET === 'clean') clean()
 else if (process.env.BUILD_TARGET === 'web') web()
 else build()
 
-function clean () {
+function clean() {
   del.sync(['build/*', '!build/icons', '!build/icons/icon.*'])
   console.log(`\n${doneLog}\n`)
   process.exit()
 }
 
-function build () {
+function build() {
+  loadEnvVars();
+
   greeting()
 
   del.sync(['dist/electron/*', '!.gitkeep'])
@@ -70,7 +77,7 @@ function build () {
   })
 }
 
-function pack (config) {
+function pack(config) {
   return new Promise((resolve, reject) => {
     config.mode = 'production'
     webpack(config, (err, stats) => {
@@ -79,13 +86,13 @@ function pack (config) {
         let err = ''
 
         stats.toString({
-          chunks: false,
-          colors: true
-        })
-        .split(/\r?\n/)
-        .forEach(line => {
-          err += `    ${line}\n`
-        })
+            chunks: false,
+            colors: true
+          })
+          .split(/\r?\n/)
+          .forEach(line => {
+            err += `    ${line}\n`
+          })
 
         reject(err)
       } else {
@@ -98,7 +105,7 @@ function pack (config) {
   })
 }
 
-function web () {
+function web() {
   del.sync(['dist/web/*', '!.gitkeep'])
   webConfig.mode = 'production'
   webpack(webConfig, (err, stats) => {
@@ -113,7 +120,7 @@ function web () {
   })
 }
 
-function greeting () {
+function greeting() {
   const cols = process.stdout.columns
   let text = ''
 

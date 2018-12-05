@@ -19,7 +19,7 @@ let webConfig = {
   module: {
     rules: [
       {
-        test: /\.(js|vue)$/,
+        test: /\.(js)$/,
         enforce: 'pre',
         exclude: /node_modules/,
         use: {
@@ -126,7 +126,6 @@ let webConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
-      'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.ts', '.vue', '.json', '.css']
   },
