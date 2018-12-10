@@ -6,18 +6,18 @@ export enum MusicSource {
 }
 
 export interface SpotifyTrack extends BasicTrack<SpotifyApi.TrackObjectFull> {
-  source: MusicSource.Spotify;
   artist: string;
   album: string;
+  source: MusicSource.Spotify;
 }
 
 export interface YouTubeTrack extends BasicTrack<youtube_v3.Schema$Video> {
   source: MusicSource.YouTube;
-  id: string;
 }
 
 export interface BasicTrack<TSourceMedia> {
   name: string;
+  id: string;
   sourceMedia: TSourceMedia;
 }
 

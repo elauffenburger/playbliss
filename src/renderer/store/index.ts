@@ -7,9 +7,11 @@ import { createPersistedState } from "vuex-electron";
 
 import makeUserModule, { UserState, UserModuleOptions, spotifyModulePlugin } from "./modules/user";
 import { makePlaylistsModule } from './modules/playlists';
+import { PlayerState } from './modules/user/player';
 
 export interface AppState {
   user: UserState;
+  player: PlayerState;
 }
 
 export interface StoreOptions {

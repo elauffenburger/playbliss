@@ -3,6 +3,7 @@ import { youtube_v3 } from "googleapis";
 
 export function mapSpotifyTrack(track: SpotifyApi.TrackObjectFull): SpotifyTrack {
   return {
+    id: track.id,
     name: track.name,
     artist: track.artists[0].name,
     album: track.album.name,

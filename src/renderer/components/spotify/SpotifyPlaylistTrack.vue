@@ -1,7 +1,7 @@
 <template>
   <div class='spotify-playlist-track'>
     <div>
-      <span><span class='spotify-logo'>[Spotify]</span> {{name}} | {{artist}} | {{album}}</span>
+      <span><span class='spotify-logo'>[Spotify]</span> {{track.name}} | {{track.artist}} | {{track.album}}</span>
     </div>
 
     <v-btn @click="onClickPlayPause">{{isPlayingTrack ? "Pause": "Play" }}</v-btn>
@@ -23,30 +23,6 @@ export default class SpotifyPlaylistTrack extends Vue {
 
   get store(): Store<AppState> {
     return this.$store;
-  }
-
-  get name(): string {
-    if (!this.track) {
-      return "";
-    }
-
-    return this.track.name;
-  }
-
-  get artist(): string {
-    if (!this.track) {
-      return "";
-    }
-
-    return this.track.artist;
-  }
-
-  get album(): string {
-    if (!this.track) {
-      return "";
-    }
-
-    return this.track.album;
   }
 
   get isPlayingTrack(): boolean {
