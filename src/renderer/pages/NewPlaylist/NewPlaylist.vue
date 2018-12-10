@@ -1,19 +1,28 @@
 <template>
-  <div>
-    <div>
-      <input
-        type="text"
-        v-model="playlistName"
-      />
-      <button @click="createPlaylist()">Create Playlist</button>
-    </div>
+  <v-container>
+    <v-layout row>
+      <v-flex xs9>
+        <v-text-field
+          v-model="playlistName"
+          label="Playlist Name"
+        ></v-text-field>
+      </v-flex>
+
+      <v-flex xs3>
+        <v-btn
+          color="success"
+          @click="createPlaylist()"
+        >Create Playlist</v-btn>
+      </v-flex>
+    </v-layout>
+
     <div
       v-for="(track, i) in tracks"
       :key="i"
     >
       <pre>{{track}}</pre>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -23,6 +32,7 @@ import { Prop } from "vue-property-decorator";
 import { Store } from "vuex";
 import { Playlist, Track } from "@/renderer/models";
 import { AppState } from "@/renderer/store";
+import { ROUTES } from "../../router";
 
 @Component({ name: "NewPlaylist" })
 export default class NewPlaylist extends Vue {
@@ -37,19 +47,17 @@ export default class NewPlaylist extends Vue {
 
   created() {}
 
-  mounted() {
-    console.log(this);
-  }
+  mounted() {}
 
-  createPlaylist() {
-    console.log("attempting to save playlist: %O", this.playlistName);
-
+  async createPlaylist() {
     const playlist: Playlist = {
       name: this.playlistName,
       tracks: this.tracks || []
     };
 
-    this.store.dispatch("playlists/createPlaylist", playlist);
+    await this.store.dispatch("playlists/createPlaylist", playlist);
+
+    this.$router.replace(ROUTES.ALL_PLAYLISTS);
   }
 }
 </script>

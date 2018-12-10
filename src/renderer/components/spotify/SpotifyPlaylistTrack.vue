@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class='spotify-playlist-track'>
     <div>
-      <span>{{name}} | {{artist}} | {{album}}</span>
+      <span><span class='spotify-logo'>[Spotify]</span> {{name}} | {{artist}} | {{album}}</span>
     </div>
 
-    <button @click="onClickPlayPause">{{isPlayingTrack ? "Pause": "Play" }}</button>
+    <v-btn @click="onClickPlayPause">{{isPlayingTrack ? "Pause": "Play" }}</v-btn>
   </div>
 </template>
 
@@ -38,7 +38,7 @@ export default class SpotifyPlaylistTrack extends Vue {
       return "";
     }
 
-    return this.track.sourceTrack.artists[0].name;
+    return this.track.artist;
   }
 
   get album(): string {
@@ -46,7 +46,7 @@ export default class SpotifyPlaylistTrack extends Vue {
       return "";
     }
 
-    return this.track.sourceTrack.album.name;
+    return this.track.album;
   }
 
   get isPlayingTrack(): boolean {
@@ -56,7 +56,7 @@ export default class SpotifyPlaylistTrack extends Vue {
     }
 
     return this.store.getters["user/spotify/player/isPlayingTrack"](
-      this.track.sourceTrack
+      this.track.sourceMedia
     );
   }
 
@@ -68,11 +68,16 @@ export default class SpotifyPlaylistTrack extends Vue {
 
     this.store.dispatch(
       "user/spotify/player/togglePlayPauseForTrack",
-      this.track.sourceTrack
+      this.track.sourceMedia
     );
   }
 }
 </script>
 
 <style lang="less">
+.spotify-playlist-track {
+  .spotify-logo {
+    background-color: #1ed05d;
+  }
+}
 </style>

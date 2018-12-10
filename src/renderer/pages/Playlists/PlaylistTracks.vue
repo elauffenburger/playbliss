@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <v-container>
+    <AddPlaylistTrack :playlist="playlist" />
+
     <div
       class="track"
       v-for="(track, i) of playlist.tracks"
@@ -9,23 +11,31 @@
         v-if="track.source == 'spotify'"
         :track="track"
       />
-    </div>
-  </div>
 
+      <YouTubePlaylistTrack
+        v-if="track.source == 'youtube'"
+        :track="track"
+      />
+    </div>
+  </v-container>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-
-import SpotifyPlaylistTrack from "../../components/spotify/SpotifyPlaylistTrack.vue";
 import { Prop } from "vue-property-decorator";
 import { Playlist } from "@/renderer/models";
+
+import SpotifyPlaylistTrack from "../../components/spotify/SpotifyPlaylistTrack.vue";
+import YouTubePlaylistTrack from "../../components/youtube/YouTubePlaylistTrack.vue";
+import AddPlaylistTrack from "../../components/playlist/AddPlaylistTrack.vue";
 
 @Component({
   name: "PlaylistTracks",
   components: {
-    SpotifyPlaylistTrack
+    SpotifyPlaylistTrack,
+    YouTubePlaylistTrack,
+    AddPlaylistTrack
   }
 })
 export default class PlaylistTracks extends Vue {

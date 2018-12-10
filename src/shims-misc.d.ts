@@ -8,6 +8,13 @@ declare module "spotify-web-api-node" {
     body: T;
   }
 
+  export interface PlayOptions {
+    context_uri?: string;
+    uris?: string[];
+    offset?: { position?: number };
+    position_ms?: number;
+  }
+
   export class Api {
     setAccessToken(accessToken: string): void;
     getTrack(trackId: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
@@ -16,14 +23,23 @@ declare module "spotify-web-api-node" {
     getAlbums(albumIds: string[], options?: any, callback?: any): Promise<ApiResponse<any>>;
     getArtist(artistId: string, callback?: any): Promise<ApiResponse<any>>;
     getArtists(artistIds: string[], callback?: any): Promise<ApiResponse<any>>;
-    search(query: string, types: string[], options?: any, callback?: any): Promise<ApiResponse<any>>;
+    search(
+      query: string,
+      types: string[],
+      options?: any,
+      callback?: any
+    ): Promise<ApiResponse<any>>;
     searchAlbums(query: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
     searchArtists(query: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
-    searchTracks(query: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
+    searchTracks(query: string, options?: any, callback?: any): Promise<ApiResponse<SpotifyApi.TrackSearchResponse>>;
     searchPlaylists(query: string, options: any, callback?: any): Promise<ApiResponse<any>>;
     getArtistAlbums(artistId: string, callback?: any): Promise<ApiResponse<any>>;
     getAlbumTracks(albumId: string, callback?: any): Promise<ApiResponse<any>>;
-    getArtistTopTracks(artistId: string, country: string, callback?: any): Promise<ApiResponse<any>>;
+    getArtistTopTracks(
+      artistId: string,
+      country: string,
+      callback?: any
+    ): Promise<ApiResponse<any>>;
     getArtistRelatedArtists(artistId: string, callback?: any): Promise<ApiResponse<any>>;
     getUser(userId: string, callback?: any): Promise<ApiResponse<any>>;
     getMe(callback?: any): Promise<ApiResponse<SpotifyApi.CurrentUsersProfileResponse>>;
@@ -32,7 +48,12 @@ declare module "spotify-web-api-node" {
       options?: any,
       callback?: any
     ): Promise<ApiResponse<SpotifyApi.ListOfUsersPlaylistsResponse>>;
-    getPlaylist(userId: string, playlistId: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
+    getPlaylist(
+      userId: string,
+      playlistId: string,
+      options?: any,
+      callback?: any
+    ): Promise<ApiResponse<any>>;
     getPlaylistTracks(
       playlistId: string,
       options?: any,
@@ -44,7 +65,12 @@ declare module "spotify-web-api-node" {
       options?: any,
       callback?: any
     ): Promise<ApiResponse<any>>;
-    followPlaylist(userId: string, playlistId: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
+    followPlaylist(
+      userId: string,
+      playlistId: string,
+      options?: any,
+      callback?: any
+    ): Promise<ApiResponse<any>>;
     unfollowPlaylist(
       userId: string,
       playlistId: string,
@@ -127,8 +153,12 @@ declare module "spotify-web-api-node" {
     getFeaturedPlaylists(options?: any, callback?: any): Promise<ApiResponse<any>>;
     getCategories(options?: any, callback?: any): Promise<ApiResponse<any>>;
     getCategory(categoryId: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
-    getPlaylistsForCategory(categoryId: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
-    play(options?: { context_uri?: string, uris?: string[], offset?: { position?: number }, position_ms?: number }): Promise<ApiResponse<any>>;
+    getPlaylistsForCategory(
+      categoryId: string,
+      options?: any,
+      callback?: any
+    ): Promise<ApiResponse<any>>;
+    play(options?: PlayOptions): Promise<ApiResponse<any>>;
     pause(): Promise<ApiResponse<any>>;
   }
 

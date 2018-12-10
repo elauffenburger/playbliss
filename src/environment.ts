@@ -7,5 +7,8 @@ export default {
       redirectUri: process.env.ELECTRON_WEBPACK_APP_SPOTIFY_REDIRECT_URI as string,
       scopes: ["playlist-read-private", "user-read-private", "user-modify-playback-state"]
     }
+  },
+  youtube: {
+    apiKey: process.env.ELECTRON_WEBPACK_APP_YOUTUBE_API_KEY as string
   }
 };

@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <v-container>
     <div class="spotify">
       <SpotifyLogin />
 
       <div v-if="loggedIntoSpotify">
-        <button @click="syncSpotifyPlaylists()">Sync Spotify Playlists</button>
+        <v-btn @click="syncSpotifyPlaylists()">Sync Spotify Playlists</v-btn>
 
         <div
           v-for="(playlist, i) in spotifyPlaylists"
@@ -13,22 +13,25 @@
         >
           <div>{{playlist}}</div>
           <div>
-            <button @click="forkPlaylist(playlist)">Fork Playlist</button>
+            <v-btn @click="forkPlaylist(playlist)">Fork Playlist</v-btn>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import Component from "vue-class-component";
-import SpotifyLogin from "../../components/spotify/SpotifyLogin.vue";
 import { Store } from "vuex";
+import Component from "vue-class-component";
+
+import SpotifyLogin from "../../components/spotify/SpotifyLogin.vue";
+
 import { AppState } from "@/renderer/store";
 import { ROUTES } from "../../router";
-import { Track, SpotifyTrack } from "../../../renderer/models";
+import { Track, SpotifyTrack } from "../../models";
+import { mapSpotifyTrack } from "../../helpers/tracks";
 
 @Component({
   name: "Home",
@@ -67,12 +70,7 @@ export default class Home extends Vue {
         json: JSON.stringify({
           tracks: tracks.map<Track>(trackInfo => {
             const track = trackInfo.track;
-
-            return <SpotifyTrack>{
-              name: track.name,
-              sourceTrack: track,
-              source: "spotify"
-            };
+            return mapSpotifyTrack(track);
           })
         })
       }

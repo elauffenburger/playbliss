@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>Logged into Spotify: {{loggedIn}}</div>
-    <button @click="onClickLogin()">Click to {{loggedIn ? 'Re-': ''}}Login To Spotify</button>
+    <v-btn @click="onClickLogin()">Click to {{loggedIn ? 'Re-': ''}}Login To Spotify</v-btn>
   </div>
 </template>
 
