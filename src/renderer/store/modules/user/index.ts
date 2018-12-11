@@ -1,7 +1,6 @@
 import { Module } from "vuex";
 import { AppState } from "../..";
 import { UserSpotifyState, makeSpotifyModule, SpotifyModuleOptions } from './spotify';
-import { makePlayerModule } from './player';
 import { makeYouTubeModule, YouTubeModuleOptions } from './youtube';
 
 export { spotifyModulePlugin } from './spotify';
@@ -20,8 +19,7 @@ export default function makeUserModule(options: UserModuleOptions): Module<UserS
     namespaced: true,
     modules: {
       spotify: makeSpotifyModule(options.spotify),
-      youtube: makeYouTubeModule(options.youtube),
-      player: makePlayerModule()
+      youtube: makeYouTubeModule(options.youtube)
     }
   };
 }

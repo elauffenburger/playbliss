@@ -31,8 +31,8 @@ export default class SpotifyPlaylistTrack extends Vue {
       return false;
     }
 
-    return this.store.getters["user/youtube/player/isPlayingTrack"](
-      this.track.sourceMedia
+    return this.store.getters["player/isPlayingTrack"](
+      this.track
     );
   }
 
@@ -43,8 +43,8 @@ export default class SpotifyPlaylistTrack extends Vue {
     }
 
     this.store.dispatch(
-      "user/youtube/player/togglePlayPauseForTrack",
-      this.track.sourceMedia
+      "player/togglePlayPauseForTrack",
+      this.track
     );
   }
 }

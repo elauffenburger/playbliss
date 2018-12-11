@@ -1,10 +1,14 @@
-import { Module, ActionContext, Store, SubscribeActionStore } from "vuex";
+import { Module, Store, MutationPayload } from "vuex";
+import SpotifyWebApi from "spotify-web-api-node";
+
 import { AppState } from "../..";
-import SpotifyWebApi, { PlayOptions } from "spotify-web-api-node";
-import { OAuthService } from "@/renderer/services/oauth";
-import { StopPlayingActionPayload, Track } from "@/renderer/models";
+import { OAuthService } from "../../../services/oauth";
+import { StopPlayingActionPayload, Track, MusicSource, SpotifyTrack } from "../../../models";
+import { AbstractPlayerModulePlugin } from "../player";
+import { mapSpotifyTrack } from "../../../helpers/tracks";
 
 const PLAYER_NAME = "spotify";
+const STATE_POLL_INTERVAL_MS = 2000;
 
 export interface SpotifyModuleOptions {
   client: SpotifyWebApi;
@@ -33,21 +37,18 @@ export const MUTATIONS = {
   SET_TOKEN: "setToken",
   SET_LOGGED_IN: "setLoggedIn",
   SET_PLAYLISTS: "setPlaylists",
-  SET_USER: "setUser",
-  PLAYER: {
-    SET_IS_PLAYING: "player/setIsPlaying",
-    SET_TRACK: "player/setTrack"
-  }
+  SET_USER: "setUser"
 };
 
 export const ACTIONS = {
   LOGIN: "login",
   GET_PLAYLISTS: "getPlaylists",
   GET_PLAYLIST_TRACKS: "getPlaylistTracks",
+  GET_CURRENT_TRACK: "getCurrentTrack",
   SEARCH_TRACK: "searchTrack",
   PLAYER: {
-    TOGGLE_PLAY_PAUSE_FOR_TRACK: "player/togglePlayPauseForTrack",
     PLAY: "player/play",
+    RESUME: "player/resume",
     PAUSE: "player/pause"
   }
 };
@@ -57,20 +58,18 @@ export interface UserSpotifyState {
   token: string;
   playlists: SpotifyApi.PlaylistObjectSimplified[];
   user: SpotifyApi.CurrentUsersProfileResponse | null;
-  player: {
-    isPlaying: boolean;
-    track: SpotifyApi.TrackObjectSimplified | null;
-  };
 }
 
-class SpotifyModulePlugin {
-  constructor(private store: Store<AppState>) {
-    this.init();
+class SpotifyModulePlugin extends AbstractPlayerModulePlugin {
+  constructor(store: Store<AppState>) {
+    super(store);
   }
 
   init() {
     this.bootstrap();
-    this.listen();
+    this.startPolling();
+
+    super.init();
   }
 
   bootstrap() {
@@ -81,19 +80,50 @@ class SpotifyModulePlugin {
     }
   }
 
-  listen() {
-    (this.store as SubscribeActionStore<AppState>).subscribeAction((action, state) => {
-      if (action.type == `user/player/stopPlaying`) {
-        const payload = action.payload as StopPlayingActionPayload;
+  startPolling() {
+    setInterval(() => this.checkPlaybackState(), STATE_POLL_INTERVAL_MS);
+  }
 
-        // If the message originated from us, ignore it
-        if (payload.ifNot == PLAYER_NAME) {
-          return;
-        }
+  async checkPlaybackState() {
+    if (this.store.state.player.activeSource != MusicSource.Spotify) {
+      return;
+    }
 
-        this.store.dispatch(ACTIONS.PLAYER.PAUSE);
-      }
-    });
+    const trackContext = await this.store.dispatch("user/spotify/getCurrentTrack");
+
+    this.store.commit("player/setIsPlaying", trackContext.is_playing);
+    this.store.commit(
+      "player/setTrack",
+      mapSpotifyTrack(trackContext.item as SpotifyApi.TrackObjectFull)
+    );
+  }
+
+  handleStopPlayingAction(action: MutationPayload) {
+    const payload = action.payload as StopPlayingActionPayload;
+
+    // If the message originated from us, ignore it
+    if (payload.ifNot == PLAYER_NAME) {
+      return;
+    }
+
+    this.store.dispatch("user/spotify/player/pause");
+  }
+
+  handlePlayTrackAction(action: MutationPayload) {
+    const track = action.payload as Track;
+    if (track.source != MusicSource.Spotify) {
+      return;
+    }
+
+    this.store.dispatch("user/spotify/player/play", track);
+  }
+
+  handleResumeTrackAction(action: MutationPayload) {
+    this.store.dispatch("user/spotify/player/resume");
+  }
+
+  handlePauseTrackAction(action: MutationPayload) {
+    this.store.dispatch("user/spotify/player/pause");
   }
 }
 
@@ -116,11 +146,7 @@ export function makeSpotifyModule(
       loggedIn: false,
       token: "",
       playlists: [],
-      user: null,
-      player: {
-        isPlaying: false,
-        track: null
-      }
+      user: null
     },
     getters: {
       [GETTERS.PLAYLISTS](state) {
@@ -138,16 +164,6 @@ export function makeSpotifyModule(
       },
       [GETTERS.OAUTH.REDIRECT_URI](state) {
         return options.oauth.redirectUri;
-      },
-      [GETTERS.PLAYER.IS_PLAYING](state) {
-        return state.player.isPlaying;
-      },
-      [GETTERS.PLAYER.IS_PLAYING_TRACK](state) {
-        return (track: SpotifyApi.TrackObjectSimplified) => {
-          const player = state.player;
-
-          return player.isPlaying && player.track && track && player.track.id == track.id;
-        };
       }
     },
     mutations: {
@@ -164,12 +180,6 @@ export function makeSpotifyModule(
       },
       [MUTATIONS.SET_USER](state, user: SpotifyApi.CurrentUsersProfileResponse) {
         state.user = user;
-      },
-      [MUTATIONS.PLAYER.SET_IS_PLAYING](state, isPlaying: boolean) {
-        state.player.isPlaying = isPlaying;
-      },
-      [MUTATIONS.PLAYER.SET_TRACK](state, track: SpotifyApi.TrackObjectSimplified) {
-        state.player.track = track;
       }
     },
     actions: {
@@ -195,6 +205,12 @@ export function makeSpotifyModule(
 
         store.commit(MUTATIONS.SET_PLAYLISTS, playlists);
       },
+      async [ACTIONS.GET_CURRENT_TRACK](store) {
+        const response = await client.getMyCurrentPlayingTrack();
+        const trackContext = response.body;
+
+        return trackContext;
+      },
       async [ACTIONS.GET_PLAYLIST_TRACKS](
         store,
         playlist: SpotifyApi.PlaylistObjectSimplified
@@ -204,39 +220,21 @@ export function makeSpotifyModule(
 
         return tracks.items;
       },
-
       async [ACTIONS.SEARCH_TRACK](store, search: string): Promise<SpotifyApi.TrackObjectFull[]> {
         const response = await client.searchTracks(search);
 
         return response.body.tracks.items;
       },
-      async [ACTIONS.PLAYER.TOGGLE_PLAY_PAUSE_FOR_TRACK](store, track: SpotifyApi.TrackObjectFull) {
-        const player = store.state.player;
-
-        // If the currently selected track is the passed in track:
-        if (player.track && player.track.id == track.id) {
-          const action = player.isPlaying ? ACTIONS.PLAYER.PAUSE : ACTIONS.PLAYER.PLAY;
-
-          await store.dispatch(action);
-          return;
-        }
-
-        // ...otherwise, start playing the passed track!
-        await store.dispatch(ACTIONS.PLAYER.PLAY, track);
-      },
-      async [ACTIONS.PLAYER.PLAY](store, track?: SpotifyApi.TrackObjectFull) {
-        const options = track ? { uris: [track.uri] } : undefined;
+      async [ACTIONS.PLAYER.PLAY](store, track: SpotifyTrack) {
+        const options = { uris: [track.sourceMedia.uri] };
 
         await client.play(options);
-        store.commit(MUTATIONS.PLAYER.SET_IS_PLAYING, true);
-
-        if (track) {
-          store.commit(MUTATIONS.PLAYER.SET_TRACK, track);
-        }
+      },
+      async [ACTIONS.PLAYER.RESUME](store) {
+        await client.play();
       },
       async [ACTIONS.PLAYER.PAUSE](store) {
         await client.pause();
-        store.commit(MUTATIONS.PLAYER.SET_IS_PLAYING, false);
       }
     }
   };

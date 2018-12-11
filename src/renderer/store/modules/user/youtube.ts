@@ -1,7 +1,8 @@
-import { Module } from "vuex";
+import { Module, Store, SubscribeActionStore, MutationPayload } from "vuex";
 import { AppState } from "../..";
 import { youtube_v3 } from "googleapis";
-import { YouTubeTrack } from "@/renderer/models";
+import { YouTubeTrack, StopPlayingActionPayload, MusicSource, Track } from "../../../models";
+import { AbstractPlayerModulePlugin } from "../player";
 
 export interface UserYouTubeState {
   isPlaying: boolean;
@@ -12,14 +13,73 @@ export interface YouTubeModuleOptions {
   client: youtube_v3.Youtube;
 }
 
+const PLAYER_NAME = "youtube";
+
 const ACTIONS = {
-  GET_VIDEO_BY_URL: "getVideoByUrl"
+  GET_VIDEO_BY_URL: "getVideoByUrl",
+  PLAYER: {
+    PLAY: "player/play",
+    RESUME: "player/resume",
+    PAUSE: "player/pause"
+  }
 };
 
 const GETTERS = {
   PLAYER: {
     IS_PLAYING_TRACK: "player/isPlayingTrack"
   }
+};
+
+class YouTubeModulePlugin extends AbstractPlayerModulePlugin {
+  constructor(store: Store<AppState>) {
+    super(store);
+
+    this.bootstrap();
+  }
+
+  init() {
+    this.bootstrap();
+
+    super.init();
+  }
+
+  bootstrap() {}
+
+  handleStopPlayingAction(action: MutationPayload) {
+    const payload = action.payload as StopPlayingActionPayload;
+
+    // If the message originated from us, ignore it
+    if (payload.ifNot == PLAYER_NAME) {
+      return;
+    }
+
+    this.store.dispatch("user/youtube/player/pause");
+  }
+
+  handlePlayTrackAction(action: MutationPayload) {
+    const track = action.payload as Track;
+    if (track.source != MusicSource.YouTube) {
+      return;
+    }
+
+    this.store.dispatch("user/youtube/player/play", track);
+  }
+
+  handleResumeTrackAction(action: MutationPayload) {
+    this.store.dispatch("user/youtube/player/resume");
+  }
+
+  handlePauseTrackAction(action: MutationPayload) {
+    this.store.dispatch("user/youtube/player/pause");
+  }
+}
+
+export const youtubeModulePlugin = () => {
+  let plugin: YouTubeModulePlugin | undefined;
+
+  return (store: Store<AppState>) => {
+    plugin = new YouTubeModulePlugin(store);
+  };
 };
 
 export function makeYouTubeModule(
@@ -60,7 +120,10 @@ export function makeYouTubeModule(
         }
 
         return videos[0];
-      }
+      },
+      async [ACTIONS.PLAYER.PLAY](store, track: YouTubeTrack) {},
+      async [ACTIONS.PLAYER.RESUME](store) {},
+      async [ACTIONS.PLAYER.PAUSE](store) {}
     }
   };
 }

@@ -19,6 +19,7 @@ import { Store } from "vuex";
 import Component from "vue-class-component";
 import { AppState } from "../../store";
 import { Track } from "@/renderer/models";
+import { setInterval } from 'timers';
 
 @Component({ name: "Player" })
 export default class Player extends Vue {
@@ -29,7 +30,7 @@ export default class Player extends Vue {
   get isPlayingTrack() {
     const track = this.track;
 
-    return this.store.getters["users/player/isPlayingTrack"](track);
+    return this.store.getters["player/isPlayingTrack"](track);
   }
 
   get store(): Store<AppState> {

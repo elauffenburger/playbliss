@@ -31,7 +31,11 @@ declare module "spotify-web-api-node" {
     ): Promise<ApiResponse<any>>;
     searchAlbums(query: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
     searchArtists(query: string, options?: any, callback?: any): Promise<ApiResponse<any>>;
-    searchTracks(query: string, options?: any, callback?: any): Promise<ApiResponse<SpotifyApi.TrackSearchResponse>>;
+    searchTracks(
+      query: string,
+      options?: any,
+      callback?: any
+    ): Promise<ApiResponse<SpotifyApi.TrackSearchResponse>>;
     searchPlaylists(query: string, options: any, callback?: any): Promise<ApiResponse<any>>;
     getArtistAlbums(artistId: string, callback?: any): Promise<ApiResponse<any>>;
     getAlbumTracks(albumId: string, callback?: any): Promise<ApiResponse<any>>;
@@ -160,6 +164,14 @@ declare module "spotify-web-api-node" {
     ): Promise<ApiResponse<any>>;
     play(options?: PlayOptions): Promise<ApiResponse<any>>;
     pause(): Promise<ApiResponse<any>>;
+    getMyCurrentPlayingTrack(): Promise<
+      ApiResponse<{
+        currently_playing_type: string;
+        progress_ms: number | null;
+        is_playing: boolean;
+        item: SpotifyApi.TrackObjectFull | null;
+      }>
+    >;
   }
 
   export default Api;
