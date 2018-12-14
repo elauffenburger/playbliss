@@ -10,11 +10,15 @@
       <SpotifyPlaylistTrack
         v-if="track.source == 'spotify'"
         :track="track"
+        :position="i"
+        :playlist="playlist"
       />
 
       <YouTubePlaylistTrack
         v-if="track.source == 'youtube'"
         :track="track"
+        :position="i"
+        :playlist="playlist"
       />
     </div>
   </v-container>

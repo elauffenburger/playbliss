@@ -22,7 +22,9 @@
         >Remove Playlist</v-btn>
       </div>
 
-      <PlaylistTracks :playlist="playlist" />
+      <div>
+        <v-btn @click="goToPlaylist(playlist)">Go To Playlist</v-btn>
+      </div>
     </div>
   </v-container>
 </template>
@@ -56,6 +58,17 @@ export default class Playlists extends Vue {
     this.store.dispatch("playlists/removePlaylist", playlist);
   }
 
+  goToPlaylist(playlist: Playlist) {
+    this.$router.push({
+      path: ROUTES.PLAYLIST,
+      query: {
+        json: JSON.stringify({
+          playlist: playlist
+        })
+      }
+    });
+  }
+
   goToNewPlaylist() {
     this.$router.push(ROUTES.NEW_PLAYLIST);
   }
@@ -68,12 +81,6 @@ export default class Playlists extends Vue {
 
   &::not(:last-child) {
     margin-bottom: 10px;
-  }
-
-  .playlist-title-container {
-    .title {
-      display: inline-block;
-    }
   }
 }
 </style>

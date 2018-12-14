@@ -4,7 +4,7 @@ import SpotifyWebApi from "spotify-web-api-node";
 import { AppState } from "../..";
 import { OAuthService } from "../../../services/oauth";
 import { StopPlayingActionPayload, Track, MusicSource, SpotifyTrack } from "../../../models";
-import { AbstractPlayerModulePlugin } from "../player";
+import { AbstractPlayerModulePlugin, PlayTrackArgs } from "../player";
 import { mapSpotifyTrack } from "../../../helpers/tracks";
 
 const PLAYER_NAME = "spotify";
@@ -98,6 +98,10 @@ class SpotifyModulePlugin extends AbstractPlayerModulePlugin {
     );
   }
 
+  handlePlayerStartedAction(action: MutationPayload) {
+    this.checkPlaybackState();
+  }
+
   handleStopPlayingAction(action: MutationPayload) {
     const payload = action.payload as StopPlayingActionPayload;
 
@@ -106,12 +110,15 @@ class SpotifyModulePlugin extends AbstractPlayerModulePlugin {
       return;
     }
 
-    this.store.dispatch("user/spotify/player/pause");
+    this.pausePlayback();
   }
 
   handlePlayTrackAction(action: MutationPayload) {
-    const track = action.payload as Track;
+    const args = action.payload as PlayTrackArgs;
+    const track = args.track;
+
     if (track.source != MusicSource.Spotify) {
+      this.pausePlayback();
       return;
     }
 
@@ -119,10 +126,24 @@ class SpotifyModulePlugin extends AbstractPlayerModulePlugin {
   }
 
   handleResumeTrackAction(action: MutationPayload) {
+    if (this.store.state.player.activeSource != MusicSource.Spotify) {
+      this.pausePlayback();
+      return;
+    }
+
     this.store.dispatch("user/spotify/player/resume");
   }
 
   handlePauseTrackAction(action: MutationPayload) {
+    if (this.store.state.player.activeSource != MusicSource.Spotify) {
+      this.pausePlayback();
+      return;
+    }
+
+    this.pausePlayback();
+  }
+
+  pausePlayback() {
     this.store.dispatch("user/spotify/player/pause");
   }
 }

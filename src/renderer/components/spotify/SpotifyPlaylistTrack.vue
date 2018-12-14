@@ -14,10 +14,16 @@ import Component from "vue-class-component";
 import { Store } from "vuex";
 import { AppState } from "@/renderer/store";
 import { Prop } from "vue-property-decorator";
-import { SpotifyTrack, MusicSource } from "../../../renderer/models";
+import { Playlist, SpotifyTrack, MusicSource } from "../../../renderer/models";
 
 @Component({ name: "SpotifyPlaylistTrack" })
 export default class SpotifyPlaylistTrack extends Vue {
+  @Prop()
+  playlist?: Playlist;
+
+  @Prop()
+  position?: number;
+
   @Prop()
   track?: SpotifyTrack;
 
@@ -31,9 +37,7 @@ export default class SpotifyPlaylistTrack extends Vue {
       return false;
     }
 
-    return this.store.getters["player/isPlayingTrack"](
-      this.track
-    );
+    return this.store.getters["player/isPlayingTrack"](this.track);
   }
 
   onClickPlayPause() {
@@ -42,10 +46,11 @@ export default class SpotifyPlaylistTrack extends Vue {
       return false;
     }
 
-    this.store.dispatch(
-      "player/togglePlayPauseForTrack",
-      this.track
-    );
+    this.store.dispatch("player/togglePlayPauseForTrack", {
+      track: this.track,
+      position: this.position,
+      playlist: this.playlist
+    });
   }
 }
 </script>

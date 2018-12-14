@@ -8,6 +8,7 @@ import { createPersistedState } from "vuex-electron";
 import makeUserModule, { UserState, UserModuleOptions, spotifyModulePlugin } from "./modules/user";
 import { makePlaylistsModule } from './modules/playlists';
 import { PlayerState, makePlayerModule } from './modules/player';
+import { youtubeModulePlugin } from './modules/user/youtube';
 
 export interface AppState {
   user: UserState;
@@ -25,7 +26,7 @@ export default function makeStore(options: StoreOptions): Store<AppState> {
       player: makePlayerModule(),
       playlists: makePlaylistsModule()
     },
-    plugins: [createPersistedState(), spotifyModulePlugin()],
+    plugins: [createPersistedState(), spotifyModulePlugin(), youtubeModulePlugin()],
     strict: true
   });
 }

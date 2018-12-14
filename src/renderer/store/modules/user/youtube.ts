@@ -2,7 +2,7 @@ import { Module, Store, SubscribeActionStore, MutationPayload } from "vuex";
 import { AppState } from "../..";
 import { youtube_v3 } from "googleapis";
 import { YouTubeTrack, StopPlayingActionPayload, MusicSource, Track } from "../../../models";
-import { AbstractPlayerModulePlugin } from "../player";
+import { AbstractPlayerModulePlugin, PlayTrackArgs } from "../player";
 
 export interface UserYouTubeState {
   isPlaying: boolean;
@@ -45,6 +45,13 @@ class YouTubeModulePlugin extends AbstractPlayerModulePlugin {
 
   bootstrap() {}
 
+  handlePlayerStartedAction(action: MutationPayload) {
+    if (this.store.state.player.activeSource != MusicSource.YouTube) {
+      return;
+    }
+
+  }
+
   handleStopPlayingAction(action: MutationPayload) {
     const payload = action.payload as StopPlayingActionPayload;
 
@@ -53,12 +60,15 @@ class YouTubeModulePlugin extends AbstractPlayerModulePlugin {
       return;
     }
 
-    this.store.dispatch("user/youtube/player/pause");
+    this.pause();
   }
 
   handlePlayTrackAction(action: MutationPayload) {
-    const track = action.payload as Track;
+    const args = action.payload as PlayTrackArgs;
+    const track = args.track;
+
     if (track.source != MusicSource.YouTube) {
+      this.pause();
       return;
     }
 
@@ -66,10 +76,19 @@ class YouTubeModulePlugin extends AbstractPlayerModulePlugin {
   }
 
   handleResumeTrackAction(action: MutationPayload) {
+    if (this.store.state.player.activeSource != MusicSource.YouTube) {
+      this.pause();
+      return;
+    }
+
     this.store.dispatch("user/youtube/player/resume");
   }
 
   handlePauseTrackAction(action: MutationPayload) {
+    this.pause();
+  }
+
+  pause() {
     this.store.dispatch("user/youtube/player/pause");
   }
 }
@@ -121,6 +140,8 @@ export function makeYouTubeModule(
 
         return videos[0];
       },
+
+      // Marker actions for a UI component to subscribe to
       async [ACTIONS.PLAYER.PLAY](store, track: YouTubeTrack) {},
       async [ACTIONS.PLAYER.RESUME](store) {},
       async [ACTIONS.PLAYER.PAUSE](store) {}

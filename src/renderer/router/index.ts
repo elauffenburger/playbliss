@@ -4,11 +4,13 @@ import Router, { Route } from "vue-router";
 import Home from "../pages/Home/Home.vue";
 import NewPlaylist from "../pages/NewPlaylist/NewPlaylist.vue";
 import Playlists from "../pages/Playlists/Playlists.vue";
+import ViewPlaylist from "../pages/Playlists/ViewPlaylist.vue";
 
 Vue.use(Router);
 
 export const ROUTES = {
   HOME: "/home",
+  PLAYLIST: "/playlist",
   NEW_PLAYLIST: "/playlists/new",
   ALL_PLAYLISTS: "/playlists/all"
 };
@@ -33,6 +35,12 @@ export default new Router({
       path: ROUTES.HOME,
       name: "home",
       component: Home
+    },
+    {
+      path: ROUTES.PLAYLIST,
+      name: "playlist",
+      component: ViewPlaylist,
+      props: route => parseComplexQuery(route)
     },
     {
       path: ROUTES.NEW_PLAYLIST,

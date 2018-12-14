@@ -1,6 +1,6 @@
 import { Module, Store, SubscribeActionStore, MutationPayload } from "vuex";
 import { AppState } from "..";
-import { Track, MusicSource } from "@/renderer/models";
+import { Track, MusicSource, Playlist } from "@/renderer/models";
 
 export const MUTATIONS = {
   SET_TRACK: "setTrack",
@@ -9,6 +9,8 @@ export const MUTATIONS = {
 };
 
 export const ACTIONS = {
+  PLAY_PLAYLIST: "playPlaylist",
+  STARTED: "started",
   STOP_PLAYING: "stopPlaying",
   TOGGLE_PLAY_PAUSE_FOR_TRACK: "togglePlayPauseForTrack",
   PLAY_TRACK: "playTrack",
@@ -24,6 +26,12 @@ export interface PlayerState {
   isPlaying: boolean;
   activeSource: MusicSource | null;
   track: Track | null;
+}
+
+export interface PlayTrackArgs {
+  track: Track;
+  position?: number;
+  playlist?: Playlist;
 }
 
 export function makePlayerModule(): Module<PlayerState, AppState> {
@@ -53,8 +61,11 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
       }
     },
     actions: {
-      // Marker action that other modules subscribe to
+      // Marker actions that other modules subscribe to
+      [ACTIONS.PLAY_PLAYLIST](store) {},
+      [ACTIONS.STARTED](store) {},
       [ACTIONS.STOP_PLAYING](store) {},
+
       [ACTIONS.PLAY_TRACK](store, track: Track) {
         store.commit(MUTATIONS.SET_TRACK, track);
         store.commit(MUTATIONS.SET_ACTIVE_SOURCE, track.source);
@@ -69,19 +80,21 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
       [ACTIONS.PAUSE_TRACK](store) {
         store.commit(MUTATIONS.SET_IS_PLAYING, false);
       },
-      async [ACTIONS.TOGGLE_PLAY_PAUSE_FOR_TRACK](store, track: Track) {
+      async [ACTIONS.TOGGLE_PLAY_PAUSE_FOR_TRACK](store, args: PlayTrackArgs) {
         const state = store.state;
+
+        const track = args.track;
 
         // If the currently selected track is the passed in track:
         if (state.track && state.track.id == track.id) {
           const action = state.isPlaying ? ACTIONS.PAUSE_TRACK : ACTIONS.RESUME_TRACK;
 
-          await store.dispatch(action, track);
+          await store.dispatch(action, args);
           return;
         }
 
         // ...otherwise, start playing the passed track!
-        await store.dispatch(ACTIONS.PLAY_TRACK, track);
+        await store.dispatch(ACTIONS.PLAY_TRACK, args);
       }
     }
   };
@@ -101,6 +114,9 @@ export abstract class AbstractPlayerModulePlugin {
 
     store.subscribeAction((action, state) => {
       switch (action.type) {
+        case "player/started":
+          this.handlePlayerStartedAction(action);
+          break;
         case "player/stopPlaying":
           this.handleStopPlayingAction(action);
           break;
@@ -117,6 +133,7 @@ export abstract class AbstractPlayerModulePlugin {
     });
   }
 
+  abstract handlePlayerStartedAction(action: MutationPayload): void;
   abstract handleStopPlayingAction(action: MutationPayload): void;
   abstract handlePlayTrackAction(action: MutationPayload): void;
   abstract handleResumeTrackAction(action: MutationPayload): void;
