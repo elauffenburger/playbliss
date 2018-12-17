@@ -227,7 +227,6 @@ export default class SearchTrack extends Vue {
   }
 
   async updateTrackFromYouTubeManualEntry(url: string) {
-    // https://www.youtube.com/watch?v=ey3YUgpIQCU
     const youtubeVideo: youtube_v3.Schema$Video = await this.store.dispatch(
       "user/youtube/getVideoByUrl",
       url
@@ -249,6 +248,13 @@ export default class SearchTrack extends Vue {
     }
 
     throw "Unknown entry method!";
+  }
+
+  reset() {
+    this.tracks = [];
+    this.search = "";
+    this.manualEntry = "";
+    this.track = null;
   }
 }
 </script>

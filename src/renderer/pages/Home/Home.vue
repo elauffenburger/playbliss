@@ -28,7 +28,7 @@ import Component from "vue-class-component";
 
 import SpotifyLogin from "../../components/spotify/SpotifyLogin.vue";
 
-import { AppState } from "@/renderer/store";
+import { AppState } from "../../store";
 import { ROUTES } from "../../router";
 import { Track, SpotifyTrack } from "../../models";
 import { mapSpotifyTrack } from "../../helpers/tracks";

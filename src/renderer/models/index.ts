@@ -24,6 +24,7 @@ export interface BasicTrack<TSourceMedia> {
 export type Track = SpotifyTrack | YouTubeTrack;
 
 export interface Playlist {
+  id: string;
   name: string;
   tracks: Track[];
 }

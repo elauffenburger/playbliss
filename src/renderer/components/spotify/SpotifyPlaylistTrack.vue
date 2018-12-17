@@ -12,7 +12,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { AppState } from "@/renderer/store";
+import { AppState } from "../../store";
 import { Prop } from "vue-property-decorator";
 import { Playlist, SpotifyTrack, MusicSource } from "../../../renderer/models";
 
@@ -37,7 +37,7 @@ export default class SpotifyPlaylistTrack extends Vue {
       return false;
     }
 
-    return this.store.getters["player/isPlayingTrack"](this.track);
+    return this.store.getters["player/isPlayingTrack"](this.track, this.playlist, this.position);
   }
 
   onClickPlayPause() {

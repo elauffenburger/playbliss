@@ -1,6 +1,6 @@
 import { Module, Store } from "vuex";
 import { AppState } from "..";
-import { Playlist, Track } from "@/renderer/models";
+import { Playlist, Track } from "../../models";
 
 export const GETTERS = {
   PLAYLISTS: "playlists"
@@ -15,6 +15,7 @@ export const MUTATIONS = {
 export const ACTIONS = {
   CREATE_PLAYLIST: "createPlaylist",
   REMOVE_PLAYLIST: "removePlaylist",
+  GET_PLAYLIST_BY_ID: "getPlaylistById",
   ADD_TRACK_TO_PLAYLIST: "addTrackToPlaylist"
 };
 
@@ -61,6 +62,9 @@ export function makePlaylistsModule(): Module<PlaylistsModuleState, AppState> {
       },
       [ACTIONS.ADD_TRACK_TO_PLAYLIST](store, args: { playlistName: string; track: Track }) {
         store.commit(MUTATIONS.ADD_TRACK_TO_PLAYLIST, { playlistName: args.playlistName, track: args.track });
+      },
+      async [ACTIONS.GET_PLAYLIST_BY_ID](store, id: string): Promise<Playlist | undefined> {
+        return store.state.playlists.find(p => p.id == id);
       }
     }
   };

@@ -30,9 +30,10 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { Store } from "vuex";
-import { Playlist, Track } from "@/renderer/models";
-import { AppState } from "@/renderer/store";
+import { Playlist, Track } from "../../models";
+import { AppState } from "../../store";
 import { ROUTES } from "../../router";
+import uuid from 'uuid/v4';
 
 @Component({ name: "NewPlaylist" })
 export default class NewPlaylist extends Vue {
@@ -45,12 +46,15 @@ export default class NewPlaylist extends Vue {
     return this.$store;
   }
 
-  created() {}
+  created() {
+    
+  }
 
   mounted() {}
 
   async createPlaylist() {
     const playlist: Playlist = {
+      id: uuid(),
       name: this.playlistName,
       tracks: this.tracks || []
     };

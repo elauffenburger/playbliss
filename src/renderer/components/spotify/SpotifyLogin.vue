@@ -12,7 +12,7 @@ import environment from "../../../environment";
 import { remote, BrowserWindow } from "electron";
 import { Prop } from "vue-property-decorator";
 import { Store } from "vuex";
-import { AppState } from "@/renderer/store";
+import { AppState } from "../../store";
 import { toHashParams } from '../../helpers/util';
 
 @Component({

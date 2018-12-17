@@ -1,6 +1,6 @@
 <template>
   <v-layout row>
-    <SearchTrack @trackSelected="onTrackSelected($event)" />
+    <SearchTrack ref="search" @trackSelected="onTrackSelected($event)" />
 
     <v-flex xs3>
       <v-btn
@@ -32,9 +32,14 @@ export default class AddPlaylistTrack extends Vue {
   playlist?: Playlist;
 
   track?: Track;
+  search?: SearchTrack;
 
   get store(): Store<AppState> {
     return this.$store;
+  }
+
+  mounted() {
+    this.search = this.$refs["search"] as SearchTrack;
   }
 
   onTrackSelected(track: Track) {
@@ -46,6 +51,10 @@ export default class AddPlaylistTrack extends Vue {
       playlistName: this.playlist && this.playlist.name,
       track: this.track
     });
+
+    if(this.search) {
+      this.search.reset();
+    }
   }
 }
 </script>

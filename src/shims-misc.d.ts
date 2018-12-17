@@ -15,6 +15,12 @@ declare module "spotify-web-api-node" {
     position_ms?: number;
   }
 
+  export interface CurrentPlayback {
+    is_playing: boolean;
+    item: SpotifyApi.TrackObjectFull;
+    progress_ms: number;
+  }
+
   export class Api {
     setAccessToken(accessToken: string): void;
     getTrack(trackId: string, options?: any, callback?: any): Promise<ApiResponse<any>>;

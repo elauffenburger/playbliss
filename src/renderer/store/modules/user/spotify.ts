@@ -1,5 +1,5 @@
 import { Module, Store, MutationPayload } from "vuex";
-import SpotifyWebApi from "spotify-web-api-node";
+import SpotifyWebApi, { CurrentPlayback } from "spotify-web-api-node";
 
 import { AppState } from "../..";
 import { OAuthService } from "../../../services/oauth";
@@ -9,6 +9,10 @@ import { mapSpotifyTrack } from "../../../helpers/tracks";
 
 const PLAYER_NAME = "spotify";
 const STATE_POLL_INTERVAL_MS = 2000;
+
+// At some point, Spotify may not be the primary source
+// ...nah, it probably always will be :)
+const IS_DEFAULT_PLAYER = true;
 
 export interface SpotifyModuleOptions {
   client: SpotifyWebApi;
@@ -58,6 +62,9 @@ export interface UserSpotifyState {
   token: string;
   playlists: SpotifyApi.PlaylistObjectSimplified[];
   user: SpotifyApi.CurrentUsersProfileResponse | null;
+  player: {
+    currentTrack: Track | null;
+  };
 }
 
 class SpotifyModulePlugin extends AbstractPlayerModulePlugin {
@@ -85,17 +92,31 @@ class SpotifyModulePlugin extends AbstractPlayerModulePlugin {
   }
 
   async checkPlaybackState() {
-    if (this.store.state.player.activeSource != MusicSource.Spotify) {
+    const player = this.store.state.player;
+
+    // If the player is playing and it's playing a non-spotify track, abort the poll
+    if (player.isPlaying && player.activeSource && player.activeSource != MusicSource.Spotify) {
       return;
     }
 
-    const trackContext = await this.store.dispatch("user/spotify/getCurrentTrack");
+    const playerWasPlaying = player.isPlaying;
 
-    this.store.commit("player/setIsPlaying", trackContext.is_playing);
-    this.store.commit(
-      "player/setTrack",
-      mapSpotifyTrack(trackContext.item as SpotifyApi.TrackObjectFull)
-    );
+    const trackContext: CurrentPlayback = await this.store.dispatch("user/spotify/getCurrentTrack");
+    const track = mapSpotifyTrack(trackContext.item);
+    const isPlaying = trackContext.is_playing;
+
+    if (player.isPlaying != isPlaying) {
+      this.store.commit("player/setIsPlaying", isPlaying);
+    }
+
+    if (player.track != track) {
+      this.store.dispatch("player/setTrack", track);
+      this.store.dispatch("player/trackChangedRemotely");
+    }
+
+    if (playerWasPlaying && player.track == track && trackContext.progress_ms == 0) {
+      this.store.dispatch("player/trackEnded", track);
+    }
   }
 
   handlePlayerStartedAction(action: MutationPayload) {
@@ -167,7 +188,10 @@ export function makeSpotifyModule(
       loggedIn: false,
       token: "",
       playlists: [],
-      user: null
+      user: null,
+      player: {
+        currentTrack: null
+      }
     },
     getters: {
       [GETTERS.PLAYLISTS](state) {

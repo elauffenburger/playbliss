@@ -15,11 +15,6 @@
       "webpack-env",
       "spotify-api"
     ],
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
     "lib": [
       "esnext",
       "dom",
@@ -29,14 +24,9 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx",
     "src/main/index.js",
-    "src/renderer/main.ts",
-    "src/main/index.dev.js",
-    "src/main/index.js",
+    "src/renderer/main.ts"
   ],
   "exclude": [
     "node_modules"

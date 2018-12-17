@@ -12,7 +12,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { AppState } from "@/renderer/store";
+import { AppState } from "../../store";
 import { Prop } from "vue-property-decorator";
 import { Playlist, YouTubeTrack, MusicSource } from "../../../renderer/models";
 

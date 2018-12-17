@@ -15,6 +15,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const {
   VueLoaderPlugin
 } = require('vue-loader')
+const HappyPack = require('happypack');
+const ForkTsChecker = require('fork-ts-checker-webpack-plugin');
 
 /**
  * List of node_modules to include in webpack bundle
@@ -73,12 +75,7 @@ let rendererConfig = {
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            appendTsSuffixTo: [/\.vue$/]
-          }
-        }
+        use: 'happypack/loader?id=ts'
       },
       {
         test: /\.node$/,
@@ -146,11 +143,21 @@ let rendererConfig = {
         removeComments: true
       },
       nodeModules: process.env.NODE_ENV !== 'production' ?
-        path.resolve(__dirname, '../node_modules') :
-        false
+        path.resolve(__dirname, '../node_modules') : false
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    new HappyPack({
+      id: 'ts',
+      loaders: [{
+        path: 'ts-loader',
+        query: {
+          appendTsSuffixTo: [/\.vue$/],
+          happyPackMode: true
+        }
+      }]
+    }),
+    new ForkTsChecker({ checkSyntacticErrors: true })
   ],
   output: {
     filename: '[name].js',

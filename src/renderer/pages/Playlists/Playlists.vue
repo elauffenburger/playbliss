@@ -33,7 +33,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { AppState } from "@/renderer/store";
+import { AppState } from "../../store";
 import { Playlist } from "../../models";
 import { ROUTES } from "../../router";
 
@@ -63,7 +63,7 @@ export default class Playlists extends Vue {
       path: ROUTES.PLAYLIST,
       query: {
         json: JSON.stringify({
-          playlist: playlist
+          playlistId: playlist.id
         })
       }
     });

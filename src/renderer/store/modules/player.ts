@@ -1,11 +1,13 @@
 import { Module, Store, SubscribeActionStore, MutationPayload } from "vuex";
 import { AppState } from "..";
-import { Track, MusicSource, Playlist } from "@/renderer/models";
+import { Track, MusicSource, Playlist } from "../../models";
 
 export const MUTATIONS = {
   SET_TRACK: "setTrack",
   SET_IS_PLAYING: "setIsPlaying",
-  SET_ACTIVE_SOURCE: "setActiveSource"
+  SET_ACTIVE_SOURCE: "setActiveSource",
+  SET_PLAYLIST: "setPlaylist",
+  SET_QUEUE_POSITION: "setQueuePosition"
 };
 
 export const ACTIONS = {
@@ -13,9 +15,12 @@ export const ACTIONS = {
   STARTED: "started",
   STOP_PLAYING: "stopPlaying",
   TOGGLE_PLAY_PAUSE_FOR_TRACK: "togglePlayPauseForTrack",
+  SET_TRACK: "setTrack",
   PLAY_TRACK: "playTrack",
   RESUME_TRACK: "resumeTrack",
-  PAUSE_TRACK: "pauseTrack"
+  PAUSE_TRACK: "pauseTrack",
+  TRACK_CHANGED_REMOTELY: "trackChangedRemotely",
+  TRACK_ENDED: "trackEnded"
 };
 
 export const GETTERS = {
@@ -26,6 +31,8 @@ export interface PlayerState {
   isPlaying: boolean;
   activeSource: MusicSource | null;
   track: Track | null;
+  playlist: Playlist | null;
+  queuePosition: number | null;
 }
 
 export interface PlayTrackArgs {
@@ -40,12 +47,30 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
     state: {
       isPlaying: false,
       activeSource: null,
-      track: null
+      track: null,
+      playlist: null,
+      queuePosition: null
     },
     getters: {
-      [GETTERS.IS_PLAYING_TRACK](state): (track: Track) => boolean {
-        return (track: Track): boolean => {
-          return (track && state.isPlaying && state.track && state.track.id == track.id) || false;
+      [GETTERS.IS_PLAYING_TRACK](
+        state
+      ): (track: Track, playlist: Playlist, queuePosition: number) => boolean {
+        return (track: Track, playlist: Playlist, queuePosition: number): boolean => {
+          if (!state.isPlaying) {
+            return false;
+          }
+
+          if (state.playlist && playlist) {
+            const isPlayingPlaylist = state.playlist == playlist;
+            const isPlayingTrackInQueuePosition = queuePosition == state.queuePosition;
+
+            return isPlayingPlaylist && isPlayingTrackInQueuePosition;
+          }
+
+          const isPlayingTrack =
+            (track && state.isPlaying && state.track && state.track.id == track.id) || false;
+
+          return isPlayingTrack;
         };
       }
     },
@@ -58,17 +83,31 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
       },
       [MUTATIONS.SET_ACTIVE_SOURCE](state, source: MusicSource) {
         state.activeSource = source;
+      },
+      [MUTATIONS.SET_PLAYLIST](state, playlist: Playlist | null) {
+        state.playlist = playlist;
+      },
+      [MUTATIONS.SET_QUEUE_POSITION](state, queuePosition: number | null) {
+        state.queuePosition = queuePosition;
       }
     },
     actions: {
       // Marker actions that other modules subscribe to
-      [ACTIONS.PLAY_PLAYLIST](store) {},
-      [ACTIONS.STARTED](store) {},
-      [ACTIONS.STOP_PLAYING](store) {},
+      [ACTIONS.PLAY_PLAYLIST]() {},
+      [ACTIONS.STARTED]() {},
+      [ACTIONS.STOP_PLAYING]() {},
+      [ACTIONS.TRACK_CHANGED_REMOTELY]() {},
+      [ACTIONS.TRACK_ENDED]() {},
 
-      [ACTIONS.PLAY_TRACK](store, track: Track) {
+      [ACTIONS.SET_TRACK](store, track: Track) {
         store.commit(MUTATIONS.SET_TRACK, track);
         store.commit(MUTATIONS.SET_ACTIVE_SOURCE, track.source);
+      },
+      [ACTIONS.PLAY_TRACK](store, args: PlayTrackArgs) {
+        store.dispatch(ACTIONS.SET_TRACK, args.track);
+        store.commit(MUTATIONS.SET_PLAYLIST, args.playlist);
+        store.commit(MUTATIONS.SET_QUEUE_POSITION, args.position);
+
         store.commit(MUTATIONS.SET_IS_PLAYING, true);
       },
       [ACTIONS.RESUME_TRACK](store) {
@@ -86,7 +125,7 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
         const track = args.track;
 
         // If the currently selected track is the passed in track:
-        if (state.track && state.track.id == track.id) {
+        if (store.getters[GETTERS.IS_PLAYING_TRACK](args.track, args.playlist, args.position)) {
           const action = state.isPlaying ? ACTIONS.PAUSE_TRACK : ACTIONS.RESUME_TRACK;
 
           await store.dispatch(action, args);

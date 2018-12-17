@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-layout v-if="playlist">
+  <v-container v-if="playlist">
+    <v-layout>
       <v-flex xs12>
         <div class="playlist-title-container">
           <h3 class="title">{{playlist.name}}</h3>
@@ -47,10 +47,20 @@ import { AppState } from "../../store";
 })
 export default class ViewPlaylist extends Vue {
   @Prop()
-  playlist?: Playlist;
+  playlistId?: string;
+
+  playlist: Playlist | null = null;
 
   get store(): Store<AppState> {
     return this.$store;
+  }
+
+  async mounted() {
+    if(!this.playlistId) {
+      return;
+    }
+
+    this.playlist = await this.store.dispatch("playlists/getPlaylistById", this.playlistId);
   }
 
   play() {

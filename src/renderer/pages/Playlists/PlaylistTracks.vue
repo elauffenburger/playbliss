@@ -28,7 +28,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
-import { Playlist } from "@/renderer/models";
+import { Playlist } from "../../models";
 
 import SpotifyPlaylistTrack from "../../components/spotify/SpotifyPlaylistTrack.vue";
 import YouTubePlaylistTrack from "../../components/youtube/YouTubePlaylistTrack.vue";
