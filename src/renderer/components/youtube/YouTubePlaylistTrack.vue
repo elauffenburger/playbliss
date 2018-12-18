@@ -1,7 +1,7 @@
 <template>
   <div class='youtube-playlist-track'>
-    <div>
-      <span><span class='youtube-logo'>[YouTube]</span> {{track.name}}</span>
+    <div v-if="track">
+      <span><span class='youtube-logo'>[YouTube]</span> {{track.track.name}}</span>
     </div>
 
     <v-btn @click="onClickPlayPause">{{isPlayingTrack ? "Pause": "Play" }}</v-btn>
@@ -14,7 +14,7 @@ import Component from "vue-class-component";
 import { Store } from "vuex";
 import { AppState } from "../../store";
 import { Prop } from "vue-property-decorator";
-import { Playlist, YouTubeTrack, MusicSource } from "../../../renderer/models";
+import { Playlist, PlaylistTrack, YouTubeTrack, MusicSource } from "../../../renderer/models";
 
 @Component({ name: "YouTubePlaylistTrack" })
 export default class SpotifyPlaylistTrack extends Vue {
@@ -25,32 +25,28 @@ export default class SpotifyPlaylistTrack extends Vue {
   position?: number;
 
   @Prop()
-  track?: YouTubeTrack;
+  track?: PlaylistTrack;
 
   get store(): Store<AppState> {
     return this.$store;
   }
 
   get isPlayingTrack(): boolean {
-    if (!this.track || this.track.source != MusicSource.YouTube) {
+    if (!this.track || this.track.track.source != MusicSource.YouTube) {
       // TODO: what do?
       return false;
     }
 
-    return this.store.getters["player/isPlayingTrack"](this.track);
+    return this.$services.player.isPlayingTrack(this.track);
   }
 
   onClickPlayPause() {
-    if (!this.track || this.track.source != MusicSource.YouTube) {
+    if (!this.track || this.track.track.source != MusicSource.YouTube) {
       // TODO: what do?
       return false;
     }
 
-    this.store.dispatch("player/togglePlayPauseForTrack", {
-      track: this.track,
-      position: this.position,
-      playlist: this.playlist
-    });
+    this.$services.player.toggleTrackPlay(this.track);
   }
 }
 </script>

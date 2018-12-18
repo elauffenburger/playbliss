@@ -18,8 +18,8 @@ export default function makeUserModule(options: UserModuleOptions): Module<UserS
   return {
     namespaced: true,
     modules: {
-      spotify: makeSpotifyModule(options.spotify),
-      youtube: makeYouTubeModule(options.youtube)
+      spotify: makeSpotifyModule(),
+      youtube: makeYouTubeModule()
     }
   };
 }

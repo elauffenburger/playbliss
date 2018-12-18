@@ -38,17 +38,21 @@ export function makePlaylistsModule(): Module<PlaylistsModuleState, AppState> {
       [MUTATIONS.CREATE_PLAYLIST](state, playlist: Playlist) {
         state.playlists.push(playlist);
       },
-      [MUTATIONS.ADD_TRACK_TO_PLAYLIST](state, args: { playlistName: string; track: Track }) {
-        const playlist = state.playlists.find(p => p.name == args.playlistName);
-        if(!playlist) {
+      [MUTATIONS.ADD_TRACK_TO_PLAYLIST](state, args: { playlistId: string; track: Track }) {
+        const playlist = state.playlists.find(p => p.id == args.playlistId);
+        if (!playlist) {
           // TODO: what do?
           return;
         }
 
-        playlist.tracks.push(args.track);
+        playlist.tracks.push({
+          playlistId: playlist.id,
+          position: playlist.tracks.length,
+          track: args.track
+        });
       },
-      [MUTATIONS.REMOVE_PLAYLIST](state, playlist: Playlist) {
-        const playlistIndex = state.playlists.findIndex(p => p.name == playlist.name);
+      [MUTATIONS.REMOVE_PLAYLIST](state, id: string) {
+        const playlistIndex = state.playlists.findIndex(p => p.id == id);
 
         state.playlists.splice(playlistIndex, 1);
       }
@@ -57,11 +61,14 @@ export function makePlaylistsModule(): Module<PlaylistsModuleState, AppState> {
       [ACTIONS.CREATE_PLAYLIST](store, playlist: Playlist) {
         store.commit(MUTATIONS.CREATE_PLAYLIST, playlist);
       },
-      [ACTIONS.REMOVE_PLAYLIST](store, playlist: Playlist) {
-        store.commit(MUTATIONS.REMOVE_PLAYLIST, playlist);
+      [ACTIONS.REMOVE_PLAYLIST](store, id: string) {
+        store.commit(MUTATIONS.REMOVE_PLAYLIST, id);
       },
-      [ACTIONS.ADD_TRACK_TO_PLAYLIST](store, args: { playlistName: string; track: Track }) {
-        store.commit(MUTATIONS.ADD_TRACK_TO_PLAYLIST, { playlistName: args.playlistName, track: args.track });
+      [ACTIONS.ADD_TRACK_TO_PLAYLIST](store, args: { playlistId: string; track: Track }) {
+        store.commit(MUTATIONS.ADD_TRACK_TO_PLAYLIST, {
+          playlistId: args.playlistId,
+          track: args.track
+        });
       },
       async [ACTIONS.GET_PLAYLIST_BY_ID](store, id: string): Promise<Playlist | undefined> {
         return store.state.playlists.find(p => p.id == id);

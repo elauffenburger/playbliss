@@ -50,8 +50,6 @@ export default class App extends Vue {
   }
 
   mounted() {
-    console.log("in mounted");
-
     const navWrapper = this.$refs["navWrapper"] as HTMLDivElement;
     const nav = this.$refs["nav"] as Vue;
 

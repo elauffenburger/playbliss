@@ -60,11 +60,15 @@ export default class ViewPlaylist extends Vue {
       return;
     }
 
-    this.playlist = await this.store.dispatch("playlists/getPlaylistById", this.playlistId);
+    this.playlist = (await this.$services.playlists.getPlaylistById(this.playlistId)) || null;
   }
 
   play() {
-    this.store.dispatch("player/playPlaylist", this.playlist);
+    if(!this.playlist) {
+      return;
+    }
+
+    this.$services.player.playPlaylist(this.playlist);
   }
 }
 </script>

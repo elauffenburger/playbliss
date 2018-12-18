@@ -8,14 +8,14 @@
       :key="i"
     >
       <SpotifyPlaylistTrack
-        v-if="track.source == 'spotify'"
+        v-if="track.track.source == 'spotify'"
         :track="track"
         :position="i"
         :playlist="playlist"
       />
 
       <YouTubePlaylistTrack
-        v-if="track.source == 'youtube'"
+        v-if="track.track.source == 'youtube'"
         :track="track"
         :position="i"
         :playlist="playlist"

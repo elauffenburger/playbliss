@@ -1,5 +1,10 @@
 <template>
   <v-container class="container">
+    <v-layout class="spotify-container">
+      <v-flex xs12>
+        <SpotifyPlayer />
+      </v-flex>
+    </v-layout>
     <v-layout class="youtube-container">
       <v-flex xs12>
         <YouTubePlayer />
@@ -7,8 +12,8 @@
     </v-layout>
     <v-layout>
       <v-flex xs12>
-        <div v-if="isPlayingTrack">
-          <span>Now Playing: {{track.name}}</span>
+        <div v-if="isPlayingTrack()">
+          <span>Now Playing: {{track.track.name}}</span>
         </div>
         <div v-else>
           <span>Paused</span>
@@ -36,29 +41,33 @@ import Component from "vue-class-component";
 
 import { AppState } from "../../store";
 import { PlayTrackArgs } from "../../store/modules/player";
-import { Track, Playlist } from "../../models";
+import { Track, PlaylistTrack, Playlist } from "../../models";
 
 import YouTubePlayer from "../youtube/YouTubePlayer.vue";
+import SpotifyPlayer from "../spotify/SpotifyPlayer.vue";
 
 @Component({
   name: "Player",
   components: {
-    YouTubePlayer
+    YouTubePlayer,
+    SpotifyPlayer
   }
 })
 export default class Player extends Vue {
   currentPlaylist?: Playlist;
-  queuePosition?: number;
-  queue: Track[] = [];
+  queue: PlaylistTrack[] = [];
 
-  get track(): Track | null {
+  get track(): PlaylistTrack | null {
     return this.store.state.player.track;
   }
 
-  get isPlayingTrack() {
+  isPlayingTrack() {
     const track = this.track;
+    if (!track) {
+      return false;
+    }
 
-    return this.store.getters["player/isPlayingTrack"](track);
+    return this.$services.player.isPlayingTrack(track);
   }
 
   get store(): SubscribeActionStore<AppState> {
@@ -66,73 +75,66 @@ export default class Player extends Vue {
   }
 
   mounted() {
-    this.store.dispatch("player/started");
+    const player = this.$services.player;
 
-    this.store.subscribeAction((action, state) => {
-      switch (action.type) {
-        case "player/playTrack":
-          const payload = action.payload as PlayTrackArgs;
+    player.trackEnded$.subscribe(event => {
+      this.onTrackEnded(event.track);
+    });
 
-          const track = payload.track;
-          const position = payload.position;
-          const playlist = payload.playlist;
+    player.playTrack$.subscribe(args => {
+      const track = args.track;
 
-          this.updatePlayerInfo(track, position,  playlist);
-          break;
-        case "player/playPlaylist":
-          this.playPlaylist(action.payload);
-          break;
-        case "player/trackEnded":
-          this.onTrackEnded();
-          break;
-      }
+      this.onPlayTrack(track);
+    });
+
+    player.playPlaylist$.subscribe(playlist => {
+      this.playPlaylist(playlist);
     });
   }
 
   playPlaylist(playlist: Playlist) {
     this.currentPlaylist = playlist;
     this.queue = playlist.tracks;
-    this.queuePosition = 0;
 
-    this.playNextTrack();
+    this.playCurrentTrack();
   }
 
-  onTrackEnded() {
+  onTrackEnded(track: PlaylistTrack) {
+    if (track.playlistId) {
+      this.currentPlaylist = this.$services.playlists.getPlaylistById(
+        track.playlistId
+      );
+    }
+
     this.playNextTrack();
   }
 
   playPreviousTrack() {
-    if(!this.queuePosition || !this.currentPlaylist) {
+    if (!this.currentPlaylist) {
       return;
     }
-
-    this.queuePosition--;
 
     this.playCurrentTrack();
   }
 
   playNextTrack() {
-    if(!this.queuePosition || !this.currentPlaylist) {
+    if (!this.currentPlaylist) {
       return;
     }
 
-    this.queuePosition++;
+    this.queue.shift();
 
     this.playCurrentTrack();
   }
 
   playCurrentTrack() {
-    if(!this.queuePosition || !this.currentPlaylist) {
+    if (!this.currentPlaylist || !this.queue.length) {
       return;
     }
 
-    const track = this.queue[this.queuePosition];
+    const track = this.queue[0];
 
-    this.store.dispatch("player/playTrack", {
-      track: track,
-      position: this.queuePosition,
-      playlist: this.currentPlaylist
-    });
+    this.$services.player.playTrack(track);
   }
 
   onClickPrevious() {
@@ -147,9 +149,16 @@ export default class Player extends Vue {
     this.playNextTrack();
   }
 
-  updatePlayerInfo(track: Track, position?: number, playlist?: Playlist) {
-    this.queuePosition = position;
-    this.currentPlaylist = playlist;
+  onPlayTrack(track: PlaylistTrack) {
+    if (track.playlistId) {
+      const previousPlaylist = this.currentPlaylist;
+      const playlist = this.$services.playlists.getPlaylistById(
+        track.playlistId
+      );
+
+      this.currentPlaylist = playlist;
+      this.queue = (playlist && playlist.tracks.slice(track.position)) || [];
+    }
   }
 }
 </script>

@@ -51,11 +51,11 @@ export default class Playlists extends Vue {
   }
 
   get playlists(): Playlist[] {
-    return this.store.getters["playlists/playlists"];
+    return this.$services.playlists.getPlaylists();
   }
 
   removePlaylist(playlist: Playlist) {
-    this.store.dispatch("playlists/removePlaylist", playlist);
+    this.$services.playlists.removePlaylist(playlist.id);
   }
 
   goToPlaylist(playlist: Playlist) {

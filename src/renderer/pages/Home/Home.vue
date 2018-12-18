@@ -5,6 +5,7 @@
 
       <div v-if="loggedIntoSpotify">
         <v-btn @click="syncSpotifyPlaylists()">Sync Spotify Playlists</v-btn>
+        <v-btn @click="clearSpotifyPlaylists()">Clear Synced Spotify Playlists</v-btn>
 
         <div
           v-for="(playlist, i) in spotifyPlaylists"
@@ -24,7 +25,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Store } from "vuex";
-import Component from "vue-class-component";
+import {Component, Watch} from "vue-property-decorator";
 
 import SpotifyLogin from "../../components/spotify/SpotifyLogin.vue";
 
@@ -38,31 +39,32 @@ import { mapSpotifyTrack } from "../../helpers/tracks";
   components: { SpotifyLogin }
 })
 export default class Home extends Vue {
-  store: Store<AppState> = <any>null;
-
   get loggedIntoSpotify() {
     return this.store.state.user.spotify.loggedIn;
   }
 
   get spotifyPlaylists(): SpotifyApi.PlaylistObjectSimplified[] {
-    return this.store.getters["user/spotify/playlists"];
+    return this.$services.spotify.getCachedPlaylists();
+  }
+
+  get store(): Store<AppState> {
+    return this.$store;
   }
 
   created() {
-    this.store = this.$store;
-
     (window as any).getRouter = () => this.$router;
   }
 
   syncSpotifyPlaylists() {
-    this.store.dispatch("user/spotify/getPlaylists");
+    this.$services.spotify.syncPlaylists();
+  }
+
+  clearSpotifyPlaylists() {
+    this.$services.spotify.clearCachedPlaylists();
   }
 
   async forkPlaylist(playlist: SpotifyApi.PlaylistObjectSimplified) {
-    const tracks: SpotifyApi.PlaylistTrackObject[] = await this.store.dispatch(
-      "user/spotify/getPlaylistTracks",
-      playlist
-    );
+    const tracks = await this.$services.spotify.getPlaylistTracks(playlist);
 
     this.$router.push({
       path: ROUTES.NEW_PLAYLIST,

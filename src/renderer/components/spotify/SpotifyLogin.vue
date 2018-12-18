@@ -25,19 +25,19 @@ export default class SpotifyLogin extends Vue {
     return this.$store;
   }
 
-  get authorizeUri(): string {
-    return this.$store.getters["user/spotify/oauth/authorizeUri"]
+  getAuthorizeUri(): Promise<string> {
+    return this.$services.spotify.getOAuthAuthorizationUri();
   }
 
-  get redirectUri(): string {
-    return this.$store.getters["user/spotify/oauth/redirectUri"]
+  getRedirectUri(): Promise<string> {
+    return this.$services.spotify.getOAuthRedirectUri();
   }
 
   get loggedIn(): boolean {
     return this.store.state.user.spotify.loggedIn;
   }
 
-  onClickLogin() {
+  async onClickLogin() {
     const authWindow = new remote.BrowserWindow({
       width: 600,
       height: 400
@@ -45,12 +45,12 @@ export default class SpotifyLogin extends Vue {
 
     this.authWindow = authWindow;
 
-    authWindow.loadURL(this.authorizeUri);
+    authWindow.loadURL(await this.getAuthorizeUri());
 
-    authWindow.webContents.on("did-navigate", event => {
+    authWindow.webContents.on("did-navigate", async event => {
       const uri = authWindow.webContents.getURL();
 
-      if (!uri.startsWith(this.redirectUri)) {
+      if (!uri.startsWith(await this.getRedirectUri())) {
         console.log("login incomplete");
         return;
       }
@@ -67,14 +67,14 @@ export default class SpotifyLogin extends Vue {
     });
   }
 
-  completeLogin(token: string) {
+  async completeLogin(token: string) {
     console.log("login complete!");
 
     if (this.authWindow) {
       this.authWindow.close();
     }
 
-    this.store.dispatch("user/spotify/login", token);
+    await this.$services.spotify.login(token);
 
     this.emitLogin();
   }

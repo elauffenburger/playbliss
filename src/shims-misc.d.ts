@@ -16,6 +16,7 @@ declare module "spotify-web-api-node" {
   }
 
   export interface CurrentPlayback {
+    currently_playing_type: string;
     is_playing: boolean;
     item: SpotifyApi.TrackObjectFull;
     progress_ms: number;
@@ -170,14 +171,8 @@ declare module "spotify-web-api-node" {
     ): Promise<ApiResponse<any>>;
     play(options?: PlayOptions): Promise<ApiResponse<any>>;
     pause(): Promise<ApiResponse<any>>;
-    getMyCurrentPlayingTrack(): Promise<
-      ApiResponse<{
-        currently_playing_type: string;
-        progress_ms: number | null;
-        is_playing: boolean;
-        item: SpotifyApi.TrackObjectFull | null;
-      }>
-    >;
+    getMyCurrentPlayingTrack(): Promise<ApiResponse<CurrentPlayback>>;
+    seek(positionMs: number): Promise<ApiResponse<any>>;
   }
 
   export default Api;

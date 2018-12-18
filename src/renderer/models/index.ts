@@ -1,5 +1,7 @@
 import { youtube_v3 } from "googleapis";
 
+export * from './user';
+
 export enum MusicSource {
   Spotify = "spotify",
   YouTube = "youtube"
@@ -26,7 +28,13 @@ export type Track = SpotifyTrack | YouTubeTrack;
 export interface Playlist {
   id: string;
   name: string;
-  tracks: Track[];
+  tracks: PlaylistTrack[];
+}
+
+export interface PlaylistTrack {
+  track: Track;
+  position?: number;
+  playlistId?: string;
 }
 
 export interface StopPlayingActionPayload {

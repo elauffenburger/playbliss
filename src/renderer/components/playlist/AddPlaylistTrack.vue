@@ -1,6 +1,9 @@
 <template>
   <v-layout row>
-    <SearchTrack ref="search" @trackSelected="onTrackSelected($event)" />
+    <SearchTrack
+      ref="search"
+      @trackSelected="onTrackSelected($event)"
+    />
 
     <v-flex xs3>
       <v-btn
@@ -47,12 +50,13 @@ export default class AddPlaylistTrack extends Vue {
   }
 
   onClickAdd() {
-    this.store.dispatch("playlists/addTrackToPlaylist", {
-      playlistName: this.playlist && this.playlist.name,
-      track: this.track
-    });
+    if (!this.playlist || !this.track) {
+      return;
+    }
 
-    if(this.search) {
+    this.$services.playlists.addTrackToPlaylist(this.playlist.id, this.track);
+
+    if (this.search) {
       this.search.reset();
     }
   }

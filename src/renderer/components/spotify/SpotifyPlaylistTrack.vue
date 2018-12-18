@@ -1,10 +1,11 @@
 <template>
   <div class='spotify-playlist-track'>
-    <div>
-      <span><span class='spotify-logo'>[Spotify]</span> {{track.name}} | {{track.artist}} | {{track.album}}</span>
+    <div v-if="track">
+      <span><span class='spotify-logo'>[Spotify]</span> {{track.track.name}} | {{track.track.artist}} | {{track.track.album}}</span>
     </div>
 
-    <v-btn @click="onClickPlayPause">{{isPlayingTrack ? "Pause": "Play" }}</v-btn>
+    <v-btn @click="onClickPlayPause()">{{isPlayingTrack ? "Pause": "Play" }}</v-btn>
+    <v-btn @click="onClickSkipToEnd()">[Debug] Skip to end</v-btn>
   </div>
 </template>
 
@@ -14,7 +15,8 @@ import Component from "vue-class-component";
 import { Store } from "vuex";
 import { AppState } from "../../store";
 import { Prop } from "vue-property-decorator";
-import { Playlist, SpotifyTrack, MusicSource } from "../../../renderer/models";
+import { Playlist, PlaylistTrack, SpotifyTrack, MusicSource } from "../../../renderer/models";
+import { setTimeout } from "timers";
 
 @Component({ name: "SpotifyPlaylistTrack" })
 export default class SpotifyPlaylistTrack extends Vue {
@@ -25,32 +27,45 @@ export default class SpotifyPlaylistTrack extends Vue {
   position?: number;
 
   @Prop()
-  track?: SpotifyTrack;
+  track?: PlaylistTrack;
 
   get store(): Store<AppState> {
     return this.$store;
   }
 
-  get isPlayingTrack(): boolean {
-    if (!this.track || this.track.source != MusicSource.Spotify) {
+  get isPlayingTrack() {
+    if (!this.track || this.track.track.source != MusicSource.Spotify) {
       // TODO: what do?
       return false;
     }
 
-    return this.store.getters["player/isPlayingTrack"](this.track, this.playlist, this.position);
+    return this.$services.player.isPlayingTrack(this.track);
   }
 
   onClickPlayPause() {
-    if (!this.track || this.track.source != MusicSource.Spotify) {
+    if (!this.track || this.track.track.source != MusicSource.Spotify) {
       // TODO: what do?
       return false;
     }
 
-    this.store.dispatch("player/togglePlayPauseForTrack", {
-      track: this.track,
-      position: this.position,
-      playlist: this.playlist
-    });
+    this.$services.player.toggleTrackPlay(this.track);
+  }
+
+  async onClickSkipToEnd() {
+    if (!this.track || this.track.track.source != MusicSource.Spotify) {
+      return;
+    }
+
+    await this.$services.player.playTrack(this.track);
+    setTimeout(async () => {
+      if (!this.track) {
+        return;
+      }
+
+      await this.$services.spotifyPlayer.seek(
+        (this.track.track as SpotifyTrack).sourceMedia.duration_ms - 1000
+      );
+    }, 1000);
   }
 }
 </script>

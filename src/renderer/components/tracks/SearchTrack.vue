@@ -199,10 +199,7 @@ export default class SearchTrack extends Vue {
   }
 
   async runSpotifySearch(search: string) {
-    const spotifyTracks: SpotifyApi.TrackObjectFull[] = await this.store.dispatch(
-      "user/spotify/searchTrack",
-      search
-    );
+    const spotifyTracks = await this.$services.spotify.searchTrack(search);
 
     const tracks = spotifyTracks.map(t => {
       const track = mapSpotifyTrack(t);
@@ -227,10 +224,7 @@ export default class SearchTrack extends Vue {
   }
 
   async updateTrackFromYouTubeManualEntry(url: string) {
-    const youtubeVideo: youtube_v3.Schema$Video = await this.store.dispatch(
-      "user/youtube/getVideoByUrl",
-      url
-    );
+    const youtubeVideo: youtube_v3.Schema$Video = await this.$services.youtube.getVideoByUrl(url);
 
     this.track = mapYouTubeVideo(youtubeVideo);
   }

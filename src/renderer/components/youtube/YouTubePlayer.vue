@@ -32,21 +32,14 @@ export default class YouTubePlayer extends Vue {
 
     this.player = player;
 
-    this.store.subscribeAction(async (mutation, state) => {
-      switch (mutation.type) {
-        case "user/youtube/player/play":
-          const track = mutation.payload as YouTubeTrack;
+    const youtubePlayer = this.$services.youtubePlayer;
 
-          await this.play(track);
-          break;
-        case "user/youtube/player/resume":
-          await this.resume();
-          break;
-        case "user/youtube/player/pause":
-          await this.pause();
-          break;
-      }
+    youtubePlayer.play$.subscribe(track => {
+      this.play(track);
     });
+
+    youtubePlayer.resume$.subscribe(() => this.resume());
+    youtubePlayer.pause$.subscribe(() => this.pause());
   }
 
   async play(track: YouTubeTrack) {
@@ -64,9 +57,10 @@ export default class YouTubePlayer extends Vue {
     }
 
     if ((await this.player.getDuration()) == 0) {
-      const track = this.store.state.player.track as YouTubeTrack;
+      const track = this.store.state.player.track;
+      const youtubeTrack = (track && track.track) as YouTubeTrack;
 
-      await this.player.loadVideoById(track.id);
+      await this.player.loadVideoById(youtubeTrack.id);
     }
 
     await this.player.playVideo();

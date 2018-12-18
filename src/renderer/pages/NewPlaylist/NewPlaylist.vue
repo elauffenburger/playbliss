@@ -56,10 +56,19 @@ export default class NewPlaylist extends Vue {
     const playlist: Playlist = {
       id: uuid(),
       name: this.playlistName,
-      tracks: this.tracks || []
+      tracks: []
     };
 
-    await this.store.dispatch("playlists/createPlaylist", playlist);
+    playlist.tracks = (this.tracks || [])
+      .map((track, i) => {
+        return {
+          track: track,
+          position: i,
+          playlist: playlist
+        };
+      });
+
+    await this.$services.playlists.createPlaylist(playlist);
 
     this.$router.replace(ROUTES.ALL_PLAYLISTS);
   }
