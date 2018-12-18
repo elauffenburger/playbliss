@@ -37,13 +37,8 @@ import { AppState } from "../../store";
 import { Playlist } from "../../models";
 import { ROUTES } from "../../router";
 
-import PlaylistTracks from "./PlaylistTracks.vue";
-
 @Component({
-  name: "Playlists",
-  components: {
-    PlaylistTracks
-  }
+  name: "Playlists"
 })
 export default class Playlists extends Vue {
   get store(): Store<AppState> {

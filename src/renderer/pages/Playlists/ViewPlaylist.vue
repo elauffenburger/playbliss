@@ -35,7 +35,7 @@ import Vue from "vue";
 import { Store } from "vuex";
 import { Component, Prop } from "vue-property-decorator";
 
-import PlaylistTracks from "./PlaylistTracks.vue";
+import PlaylistTracks from "../../components/playlist/PlaylistTracks.vue";
 import { Playlist } from "../../models";
 import { AppState } from "../../store";
 
@@ -56,19 +56,28 @@ export default class ViewPlaylist extends Vue {
   }
 
   async mounted() {
-    if(!this.playlistId) {
+    if (!this.playlistId) {
       return;
     }
 
-    this.playlist = (await this.$services.playlists.getPlaylistById(this.playlistId)) || null;
+    this.playlist =
+      (await this.$services.playlists.getPlaylistById(this.playlistId)) || null;
   }
 
   play() {
-    if(!this.playlist) {
+    if (!this.playlist) {
       return;
     }
 
     this.$services.player.playPlaylist(this.playlist);
+  }
+
+  removePlaylist() {
+    if (!this.playlistId) {
+      return;
+    }
+
+    this.$services.playlists.removePlaylist(this.playlistId);
   }
 }
 </script>
