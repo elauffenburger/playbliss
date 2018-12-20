@@ -23,6 +23,7 @@ export interface MasterPlayerService extends PlayerService {
   notifyTrackEnded(track: PlaylistTrack): Promise<any>;
   notifyStarted(): Promise<any>;
   toggleTrackPlay(track: PlaylistTrack): Promise<any>;
+  setTrackProgress(progressMs: number): Promise<void>;
 }
 
 export interface PlayerService {
@@ -129,6 +130,10 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
 
   async notifyStarted(): Promise<any> {
     this.started$.next();
+  }
+
+  async setTrackProgress(progressMs: number) {
+    this.store.dispatch("player/setProgress", progressMs);
   }
 
   private getPlayerForTrack(track: Track): PlayerService {

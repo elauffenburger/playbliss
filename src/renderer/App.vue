@@ -1,14 +1,8 @@
 <template>
   <div id="app">
     <v-app>
-      <div
-        class="nav-wrapper"
-        ref="navWrapper"
-      >
-        <v-toolbar
-          fixed
-          ref="nav"
-        >
+      <div class="">
+        <v-toolbar class="nav-container">
           <v-toolbar-items class="nav">
             <v-btn
               flat
@@ -23,11 +17,11 @@
         </v-toolbar>
       </div>
 
-      <router-view></router-view>
-
-      <div class="player-wrapper">
-        <Player />
+      <div class="content">
+        <router-view></router-view>
       </div>
+
+      <Player class="player" />
     </v-app>
   </div>
 </template>
@@ -36,12 +30,14 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 
-import Player from "./components/player/Player.vue";
+import Player from "./components/player/Player/Player.vue";
+import StickyFrame from "./widgets/StickyFrame/StickyFrame.vue";
 
 @Component({
   name: "app",
   components: {
-    Player
+    Player,
+    StickyFrame
   }
 })
 export default class App extends Vue {
@@ -49,24 +45,45 @@ export default class App extends Vue {
     this.$router.push(path);
   }
 
-  mounted() {
-    const navWrapper = this.$refs["navWrapper"] as HTMLDivElement;
-    const nav = this.$refs["nav"] as Vue;
-
-    if (!navWrapper || !nav) {
-      return;
-    }
-
-    navWrapper.style.height = `${nav.$el.scrollHeight}px`;
-  }
+  mounted() {}
 }
 </script>
 
 <style lang="less">
-.nav {
-  a {
-    color: unset;
-    text-decoration: none;
+html {
+  overflow-y: auto;
+}
+
+#app {
+  display: flex;
+  max-height: 100vh;
+  flex-direction: column;
+
+  .nav-container {
+    flex: 1 1 100%;
+
+    .nav {
+      a {
+        color: unset;
+        text-decoration: none;
+      }
+    }
+  }
+
+  .content {
+    flex: 1 1 100%;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    > * {
+      max-height: inherit;
+    }
+  }
+
+  .player {
+    flex: 1 0 100%;
+    max-height: 120px;
   }
 }
 </style>

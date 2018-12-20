@@ -23,9 +23,6 @@ export interface UserSpotifyState {
   token: string;
   playlists: SpotifyApi.PlaylistObjectSimplified[];
   user: SpotifyApi.CurrentUsersProfileResponse | null;
-  player: {
-    currentTrack: Track | null;
-  };
 }
 
 export const spotifyModulePlugin = () => {
@@ -44,10 +41,7 @@ export function makeSpotifyModule(): Module<UserSpotifyState, AppState> {
       loggedIn: false,
       token: "",
       playlists: [],
-      user: null,
-      player: {
-        currentTrack: null
-      }
+      user: null
     },
     mutations: {
       [MUTATIONS.SET_TOKEN](state, token: string) {

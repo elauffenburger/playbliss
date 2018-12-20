@@ -7,7 +7,7 @@ export interface PlaylistService {
   createPlaylist(playlist: Playlist): Promise<void>;
   removePlaylist(id: string): Promise<any>;
   addTrackToPlaylist(playlistId: string, track: Track): Promise<any>;
-  getPlaylistById(id: string): Playlist | undefined;
+  getPlaylistById(id: string): Playlist | null;
 }
 
 export class DefaultPlaylistService implements PlaylistService {
@@ -33,6 +33,6 @@ export class DefaultPlaylistService implements PlaylistService {
   }
 
   getPlaylistById(id: string) {
-    return this.store.state.playlists.playlists.find(p => p.id == id);
+    return this.store.state.playlists.playlists.find(p => p.id == id) || null;
   }
 }

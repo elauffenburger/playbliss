@@ -1,13 +1,13 @@
-import { Module, Store, SubscribeActionStore, MutationPayload } from "vuex";
+import { Module } from "vuex";
 import { AppState } from "..";
-import { Track, MusicSource, Playlist, PlaylistTrack } from "../../models";
+import { PlaylistTrack } from "../../models";
 
 export const MUTATIONS = {
   SET_TRACK: "setTrack",
   SET_IS_PLAYING: "setIsPlaying",
-  SET_ACTIVE_SOURCE: "setActiveSource",
   SET_PLAYLIST: "setPlaylist",
-  SET_QUEUE_POSITION: "setQueuePosition"
+  SET_QUEUE_POSITION: "setQueuePosition",
+  SET_PROGRESS: "setProgress"
 };
 
 export const ACTIONS = {
@@ -17,6 +17,7 @@ export const ACTIONS = {
   PLAY_TRACK: "playTrack",
   RESUME_TRACK: "resumeTrack",
   PAUSE_TRACK: "pauseTrack",
+  SET_PROGRESS: "setProgress"
 };
 
 export const GETTERS = {
@@ -25,7 +26,9 @@ export const GETTERS = {
 
 export interface PlayerState {
   isPlaying: boolean;
-  activeSource: MusicSource | null;
+  progress: {
+    progressMs: number | null;
+  };
   track: PlaylistTrack | null;
 }
 
@@ -38,8 +41,10 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
     namespaced: true,
     state: {
       isPlaying: false,
-      activeSource: null,
       track: null,
+      progress: {
+        progressMs: null
+      }
     },
     mutations: {
       [MUTATIONS.SET_TRACK](state, track: PlaylistTrack) {
@@ -48,14 +53,13 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
       [MUTATIONS.SET_IS_PLAYING](state, isPlaying: boolean) {
         state.isPlaying = isPlaying;
       },
-      [MUTATIONS.SET_ACTIVE_SOURCE](state, source: MusicSource) {
-        state.activeSource = source;
+      [MUTATIONS.SET_PROGRESS](state, progressMs: number) {
+        state.progress.progressMs = progressMs;
       }
     },
     actions: {
       [ACTIONS.SET_TRACK](store, track: PlaylistTrack) {
         store.commit(MUTATIONS.SET_TRACK, track);
-        store.commit(MUTATIONS.SET_ACTIVE_SOURCE, track.track.source);
       },
       [ACTIONS.SET_IS_PLAYING](store, isPlaying: boolean) {
         store.commit(MUTATIONS.SET_IS_PLAYING, isPlaying);
@@ -66,13 +70,13 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
         store.commit(MUTATIONS.SET_IS_PLAYING, true);
       },
       [ACTIONS.RESUME_TRACK](store) {
-        const track = store.state.track;
-
         store.commit(MUTATIONS.SET_IS_PLAYING, true);
-        store.commit(MUTATIONS.SET_ACTIVE_SOURCE, track && track.track.source);
       },
       [ACTIONS.PAUSE_TRACK](store) {
         store.commit(MUTATIONS.SET_IS_PLAYING, false);
+      },
+      [ACTIONS.SET_PROGRESS](store, progressMs: number) {
+        store.commit(MUTATIONS.SET_PROGRESS, progressMs);
       }
     }
   };

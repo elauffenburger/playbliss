@@ -1,26 +1,38 @@
 <template>
-  <v-container>
-    <AddPlaylistTrack :playlist="playlist" />
+  <v-container class="playlist-tracks">
+    <v-layout>
+      <v-flex xs12>
+        <AddPlaylistTrack :playlist="playlist" />
+      </v-flex>
+    </v-layout>
 
-    <div
-      class="track"
-      v-for="(track, i) of playlist.tracks"
-      :key="i"
-    >
-      <SpotifyPlaylistTrack
-        v-if="track.track.source == 'spotify'"
-        :track="track"
-        :position="i"
-        :playlist="playlist"
-      />
+    <v-layout>
+      <v-flex xs12>
+        <v-data-table
+          :headers="headers"
+          :items="playlist.tracks"
+          :hide-actions="true"
+          class="elevation-1 playlist-tracks"
+        >
+          <template
+            slot="items"
+            slot-scope="props"
+          >
+            <SpotifyPlaylistTrackRow
+              v-if="props.item.track.source == 'spotify'"
+              :track="props.item"
+              :playlist="playlist"
+            />
 
-      <YouTubePlaylistTrack
-        v-if="track.track.source == 'youtube'"
-        :track="track"
-        :position="i"
-        :playlist="playlist"
-      />
-    </div>
+            <YouTubePlaylistTrackRow
+              v-if="props.item.track.source == 'youtube'"
+              :track="props.item"
+              :playlist="playlist"
+            />
+          </template>
+        </v-data-table>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -30,28 +42,50 @@ import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { Playlist } from "../../models";
 
-import SpotifyPlaylistTrack from "../../components/spotify/SpotifyPlaylistTrack.vue";
-import YouTubePlaylistTrack from "../../components/youtube/YouTubePlaylistTrack.vue";
+import SpotifyPlaylistTrackRow from "../../components/spotify/SpotifyPlaylistTrackRow.vue";
+import YouTubePlaylistTrackRow from "../../components/youtube/YouTubePlaylistTrackRow.vue";
 import AddPlaylistTrack from "../../components/playlist/AddPlaylistTrack.vue";
 
 @Component({
   name: "PlaylistTracks",
   components: {
-    SpotifyPlaylistTrack,
-    YouTubePlaylistTrack,
+    SpotifyPlaylistTrackRow,
+    YouTubePlaylistTrackRow,
     AddPlaylistTrack
   }
 })
 export default class PlaylistTracks extends Vue {
   @Prop()
   playlist?: Playlist;
+
+  headers: { text: string; sortable?: boolean; width?: string }[] = [
+    {
+      text: "",
+      sortable: false,
+      width: "10"
+    },
+    {
+      text: "Title",
+      sortable: false
+    },
+    {
+      text: "Artist",
+      sortable: false
+    },
+    {
+      text: "Album",
+      sortable: false
+    }
+  ];
 }
 </script>
 
 <style lang="less">
-.track {
-  &:not(:last-child) {
-    margin-bottom: 20px;
+.playlist-tracks {
+  padding: 0;
+
+  thead tr th:first-child {
+    padding: 0;
   }
 }
 </style>

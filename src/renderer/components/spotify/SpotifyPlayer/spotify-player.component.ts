@@ -1,30 +1,23 @@
-<template>
-
-</template>
-
-<script lang="ts">
 import Vue from "vue";
 import { SubscribeActionStore } from "vuex";
 
-import { AppState } from "../../store";
+import { AppState } from "../../../store";
 import { Component } from "vue-property-decorator";
 
-import { Module, Store } from "vuex";
-import { CurrentPlayback } from "spotify-web-api-node";
+import { Store } from "vuex";
 
-import { Track, MusicSource, Playlist } from "../../models";
-import { mapSpotifyTrack } from "../../helpers/tracks";
-import { SpotifyPlayerService } from "../../services/player/spotify-player";
-import { MasterPlayerService } from "../../services/player";
+import { MusicSource } from "../../../models";
+import { mapSpotifyTrack } from "../../../helpers/tracks";
+import { SpotifyPlayerService } from "../../../services/player/spotify-player";
+import { MasterPlayerService } from "../../../services/player";
 
-const STATE_POLL_INTERVAL_MS = 2000;
+const STATE_POLL_INTERVAL_MS = 1000;
 const SONG_ENDED_THRESHOLD = 100;
 
 @Component({
   name: "SpotifyPlayer"
 })
 export default class SpotifyPlayer extends Vue {
-  private poller: SpotifyPoller | undefined;
 
   get store(): SubscribeActionStore<AppState> {
     return this.$store as any;
@@ -40,7 +33,6 @@ export default class SpotifyPlayer extends Vue {
           singlePoller: true
         }
       );
-      this.poller = poller;
 
       poller.startPolling();
     }
@@ -76,8 +68,8 @@ class SpotifyPoller {
     // If the player is playing and it's playing a non-spotify track, abort the poll
     if (
       playerState.isPlaying &&
-      playerState.activeSource &&
-      playerState.activeSource != MusicSource.Spotify
+      playerState.track &&
+      playerState.track.track.source != MusicSource.Spotify
     ) {
       return;
     }
@@ -98,7 +90,11 @@ class SpotifyPoller {
       this.player.setTrack({ track });
     }
 
-    const progressDelta = spotifyTrack.duration_ms - trackContext.progress_ms;
+    const duration = spotifyTrack.duration_ms;
+    const progress = trackContext.progress_ms;
+    const progressDelta = duration - progress;
+    
+    this.player.setTrackProgress(progress);
 
     if (
       playerWasPlaying &&
@@ -111,7 +107,3 @@ class SpotifyPoller {
     }
   }
 }
-</script>
-
-<style>
-</style>

@@ -16,7 +16,7 @@ export class DefaultYouTubeService implements YouTubeService {
 
     const response = await this.client.videos.list({
       id: id,
-      part: "snippet"
+      part: "snippet,contentDetails"
     });
 
     const videos = response.data && response.data.items;

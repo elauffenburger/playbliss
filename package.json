@@ -22,6 +22,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "googleapis": "^36.0.0",
+    "iso8601-duration": "^1.1.6",
     "rxjs": "^6.3.3",
     "spotify-web-api-node": "^4.0.0",
     "uuid": "^3.3.2",
@@ -105,6 +106,7 @@
     "vue-loader": "^15.2.4",
     "vue-style-loader": "^4.1.0",
     "vue-template-compiler": "^2.5.16",
+    "vue-template-loader": "^1.0.0",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.1.4",

@@ -1,50 +1,12 @@
-<template>
-  <v-container class="container">
-    <v-layout class="spotify-container">
-      <v-flex xs12>
-        <SpotifyPlayer />
-      </v-flex>
-    </v-layout>
-    <v-layout class="youtube-container">
-      <v-flex xs12>
-        <YouTubePlayer />
-      </v-flex>
-    </v-layout>
-    <v-layout>
-      <v-flex xs12>
-        <div v-if="isPlayingTrack()">
-          <span>Now Playing: {{track.track.name}}</span>
-        </div>
-        <div v-else>
-          <span>Paused</span>
-        </div>
-      </v-flex>
-    </v-layout>
-    <v-layout>
-      <v-flex xs3>
-        <v-btn @click="onClickPrevious()">&lt;</v-btn>
-      </v-flex>
-      <v-flex xs3>
-        <v-btn @click="onClickPlay()">Play</v-btn>
-      </v-flex>
-      <v-flex xs3>
-        <v-btn @click="onClickNext()">&gt;</v-btn>
-      </v-flex>
-    </v-layout>
-  </v-container>
-</template>
-
-<script lang="ts">
 import Vue from "vue";
 import { SubscribeActionStore } from "vuex";
 import Component from "vue-class-component";
 
-import { AppState } from "../../store";
-import { PlayTrackArgs } from "../../store/modules/player";
-import { Track, PlaylistTrack, Playlist } from "../../models";
+import { AppState } from "../../../store";
+import { PlaylistTrack, Playlist } from "../../../models";
 
-import YouTubePlayer from "../youtube/YouTubePlayer.vue";
-import SpotifyPlayer from "../spotify/SpotifyPlayer.vue";
+import YouTubePlayer from "../../youtube/YouTubePlayer/YouTubePlayer.vue";
+import SpotifyPlayer from "../../spotify/SpotifyPlayer/SpotifyPlayer.vue";
 
 @Component({
   name: "Player",
@@ -54,14 +16,32 @@ import SpotifyPlayer from "../spotify/SpotifyPlayer.vue";
   }
 })
 export default class Player extends Vue {
-  currentPlaylist?: Playlist;
+  currentPlaylist: Playlist | null = null;
   queue: PlaylistTrack[] = [];
 
   get track(): PlaylistTrack | null {
     return this.store.state.player.track;
   }
 
-  isPlayingTrack() {
+  get progressPercentage(): number | null {
+    if (!this.track) {
+      return null;
+    }
+
+    const progressMs = this.store.state.player.progress.progressMs;
+    if (!progressMs) {
+      return null;
+    }
+
+    const durationMs = this.track.track.durationMs;
+    if (durationMs == 0) {
+      return null;
+    }
+
+    return (progressMs / durationMs) * 100;
+  }
+
+  get isPlayingTrack() {
     const track = this.track;
     if (!track) {
       return false;
@@ -101,9 +81,7 @@ export default class Player extends Vue {
 
   onTrackEnded(track: PlaylistTrack) {
     if (track.playlistId) {
-      this.currentPlaylist = this.$services.playlists.getPlaylistById(
-        track.playlistId
-      );
+      this.currentPlaylist = this.$services.playlists.getPlaylistById(track.playlistId);
     }
 
     this.playNextTrack();
@@ -151,25 +129,18 @@ export default class Player extends Vue {
 
   onPlayTrack(track: PlaylistTrack) {
     if (track.playlistId) {
-      const previousPlaylist = this.currentPlaylist;
-      const playlist = this.$services.playlists.getPlaylistById(
-        track.playlistId
-      );
+      const playlist = this.$services.playlists.getPlaylistById(track.playlistId);
 
       this.currentPlaylist = playlist;
       this.queue = (playlist && playlist.tracks.slice(track.position)) || [];
     }
   }
-}
-</script>
 
-<style lang="less">
-.youtube-container {
-  @height: 50px;
-  max-height: @height;
+  onTogglePlayPause() {
+    if (!this.track) {
+      return;
+    }
 
-  iframe {
-    max-height: @height;
+    this.$services.player.toggleTrackPlay(this.track);
   }
 }
-</style>

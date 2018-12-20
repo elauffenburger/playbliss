@@ -4,10 +4,6 @@
       <v-flex xs12>
         <div class="playlist-title-container">
           <h3 class="title">{{playlist.name}}</h3>
-          <v-btn
-            color="error"
-            @click="removePlaylist(playlist)"
-          >Remove Playlist</v-btn>
         </div>
       </v-flex>
     </v-layout>
@@ -60,8 +56,9 @@ export default class ViewPlaylist extends Vue {
       return;
     }
 
-    this.playlist =
-      (await this.$services.playlists.getPlaylistById(this.playlistId)) || null;
+    this.playlist = await this.$services.playlists.getPlaylistById(
+      this.playlistId
+    );
   }
 
   play() {
@@ -70,14 +67,6 @@ export default class ViewPlaylist extends Vue {
     }
 
     this.$services.player.playPlaylist(this.playlist);
-  }
-
-  removePlaylist() {
-    if (!this.playlistId) {
-      return;
-    }
-
-    this.$services.playlists.removePlaylist(this.playlistId);
   }
 }
 </script>

@@ -21,12 +21,6 @@ import { setTimeout } from "timers";
 @Component({ name: "SpotifyPlaylistTrack" })
 export default class SpotifyPlaylistTrack extends Vue {
   @Prop()
-  playlist?: Playlist;
-
-  @Prop()
-  position?: number;
-
-  @Prop()
   track?: PlaylistTrack;
 
   get store(): Store<AppState> {
