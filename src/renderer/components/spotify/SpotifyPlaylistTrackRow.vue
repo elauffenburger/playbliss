@@ -1,6 +1,6 @@
 <template>
   <tr
-    v-bind:class="{ 'spotify-playlist-track': true, 'active': isPlayingTrack }"
+    v-bind:class="{ 'spotify-playlist-track': true, 'active': isActiveTrack }"
     @contextmenu="showContextMenu($event)"
     @dblclick="onClickPlayPause()"
   >

@@ -1,23 +1,17 @@
 <template>
   <div id="app">
     <v-app>
-      <div class="">
-        <v-toolbar class="nav-container">
-          <v-toolbar-items class="nav">
-            <v-btn
-              flat
-              @click="navigateTo('/home')"
-            >Home</v-btn>
 
-            <v-btn
-              flat
-              @click="navigateTo('/playlists/all')"
-            >Playlists</v-btn>
-          </v-toolbar-items>
-        </v-toolbar>
+      <div>
+        <Header
+          @settingsClicked="onSettingsClicked()"
+          @toolbarIconClicked="onToolbarIconClicked()"
+        />
+        <MusicSourceConfigDrawer v-model="musicSourceConfigDrawerOpen" />
       </div>
 
       <div class="content">
+        <Navigation v-model="navigationDrawerOpen" />
         <router-view></router-view>
       </div>
 
@@ -26,28 +20,7 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-
-import Player from "./components/player/Player/Player.vue";
-import StickyFrame from "./widgets/StickyFrame/StickyFrame.vue";
-
-@Component({
-  name: "app",
-  components: {
-    Player,
-    StickyFrame
-  }
-})
-export default class App extends Vue {
-  navigateTo(path: string) {
-    this.$router.push(path);
-  }
-
-  mounted() {}
-}
-</script>
+<script src="./app.component.ts" lang="ts"></script>
 
 <style lang="less">
 html {
@@ -58,17 +31,6 @@ html {
   display: flex;
   max-height: 100vh;
   flex-direction: column;
-
-  .nav-container {
-    flex: 1 1 100%;
-
-    .nav {
-      a {
-        color: unset;
-        text-decoration: none;
-      }
-    }
-  }
 
   .content {
     flex: 1 1 100%;

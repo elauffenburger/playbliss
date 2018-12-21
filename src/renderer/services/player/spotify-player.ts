@@ -4,7 +4,6 @@ import { Track, MusicSource, PlaylistTrack } from "../../models";
 
 export interface SpotifyPlayerService extends PlayerService {
   getCurrentTrack(): Promise<CurrentPlayback>;
-  seek(positionMs: number): Promise<any>;
   playSpotifyTrack(options: PlayOptions): Promise<any>;
 }
 

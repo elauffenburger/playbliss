@@ -2,20 +2,24 @@ import SpotifyWebApi from "spotify-web-api-node";
 import { Store } from "vuex";
 import { AppState } from "../store";
 import { OAuthService } from "./oauth";
+import { toHashParams } from "../helpers/util";
+import { remote } from "electron";
 
 export interface SpotifyService {
   getCachedPlaylists(): SpotifyApi.PlaylistObjectSimplified[];
   clearCachedPlaylists(): void;
-  getPlaylists(): Promise<SpotifyApi.PlaylistObjectSimplified[]>;
 
   getOAuthAuthorizationUri(): Promise<string>;
   getOAuthRedirectUri(): Promise<string>;
 
-  login(token: string): Promise<any>;
+  login(): Promise<string>;
+  setAccessToken(token: string): Promise<any>;
+  setLoggedIn(loggedIn: boolean): Promise<void>;
   syncPlaylists(): Promise<SpotifyApi.PlaylistObjectSimplified[]>;
-  getPlaylistTracks(
-    playlist: SpotifyApi.PlaylistObjectSimplified
-  ): Promise<SpotifyApi.PlaylistTrackObject[]>;
+  getPlaylists(): Promise<SpotifyApi.PlaylistObjectSimplified[]>;
+  getUser(): Promise<SpotifyApi.CurrentUsersProfileResponse>;
+
+  getPlaylistTracks(playlist: SpotifyApi.PlaylistObjectSimplified): Promise<SpotifyApi.PlaylistTrackObject[]>;
   searchTrack(search: string): Promise<SpotifyApi.TrackObjectFull[]>;
 }
 
@@ -85,25 +89,64 @@ export class DefaultSpotifyService implements SpotifyService {
   async getOAuthAuthorizationUri(): Promise<string> {
     const oauth = this.options.oauth;
 
-    return oauth.service.getAuthorizationUri(
-      oauth.baseUri,
-      oauth.clientId,
-      oauth.scopes,
-      oauth.redirectUri
-    );
+    return oauth.service.getAuthorizationUri(oauth.baseUri, oauth.clientId, oauth.scopes, oauth.redirectUri);
   }
 
   async getOAuthRedirectUri(): Promise<string> {
     return this.options.oauth.redirectUri;
   }
 
-  async login(token: string): Promise<any> {
+  async login() {
+    return new Promise<string>(async (res, rej) => {
+      const authWindow = new remote.BrowserWindow({
+        width: 600,
+        height: 400
+      });
+
+      authWindow.loadURL(await this.getOAuthAuthorizationUri());
+
+      authWindow.webContents.on("did-navigate", async () => {
+        const uri = authWindow.webContents.getURL();
+
+        if (!uri.startsWith(await this.getOAuthRedirectUri())) {
+          console.log("login incomplete");
+          return rej();
+        }
+
+        const url = new URL(uri);
+        const token = toHashParams(url.hash)["access_token"];
+        if (!token) {
+          // TODO: what do?
+          console.log("failed to find token in url");
+          return rej();
+        }
+
+        authWindow.close();
+
+        await this.setAccessToken(token);
+
+        res(token);
+      });
+    });
+  }
+
+  async setAccessToken(token: string): Promise<any> {
     this.store.dispatch("user/spotify/setToken", token);
 
     const response = await this.client.getMe();
     const user = response.body;
 
     this.store.dispatch("user/spotify/setUser", user);
+  }
+
+  async setLoggedIn(loggedIn: boolean) {
+    this.store.dispatch("user/spotify/setLoggedIn", loggedIn);
+  }
+
+  async getUser() {
+    const response = await this.client.getMe();
+
+    return response.body;
   }
 
   async syncPlaylists(): Promise<SpotifyApi.PlaylistObjectSimplified[]> {
@@ -116,9 +159,7 @@ export class DefaultSpotifyService implements SpotifyService {
     return this.store.dispatch("user/spotify/setPlaylists", playlists);
   }
 
-  async getPlaylistTracks(
-    playlist: SpotifyApi.PlaylistObjectSimplified
-  ): Promise<SpotifyApi.PlaylistTrackObject[]> {
+  async getPlaylistTracks(playlist: SpotifyApi.PlaylistObjectSimplified): Promise<SpotifyApi.PlaylistTrackObject[]> {
     const response = await this.client.getPlaylistTracks(playlist.id);
     const tracks = response.body;
 

@@ -1,6 +1,6 @@
 <template>
   <tr
-    v-bind:class="{ 'youtube-playlist-track': true, 'active': isPlayingTrack }"
+    v-bind:class="{ 'youtube-playlist-track': true, 'active': isActiveTrack }"
     @dblclick="onClickPlayPause()"
   >
     <td class="stripe"></td>

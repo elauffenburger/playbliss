@@ -1,6 +1,8 @@
 <template>
   <v-container>
     <div class="spotify">
+      <div>Logged into Spotify: {{loggedIntoSpotify}}</div>
+
       <SpotifyLogin />
 
       <div v-if="loggedIntoSpotify">
@@ -25,7 +27,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Store } from "vuex";
-import {Component, Watch} from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 
 import SpotifyLogin from "../../components/spotify/SpotifyLogin.vue";
 

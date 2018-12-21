@@ -6,12 +6,14 @@ export interface YouTubePlayerService extends PlayerService {
   play$: Subject<YouTubeTrack>;
   resume$: Subject<void>;
   pause$: Subject<void>;
+  seek$: Subject<number>;
 }
 
 export class DefaultYouTubePlayerService implements YouTubePlayerService {
   play$: Subject<YouTubeTrack> = new Subject();
   resume$: Subject<void> = new Subject();
   pause$: Subject<void> = new Subject();
+  seek$: Subject<number> = new Subject();
 
   constructor() {}
 
@@ -31,5 +33,9 @@ export class DefaultYouTubePlayerService implements YouTubePlayerService {
 
   async pauseTrack(): Promise<any> {
     this.pause$.next();
+  }
+
+  async seek(positionMs: number) {
+    this.seek$.next(positionMs);
   }
 }

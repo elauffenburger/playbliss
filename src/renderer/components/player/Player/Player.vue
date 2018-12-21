@@ -14,9 +14,7 @@
     </v-layout>
 
     <v-layout>
-      <v-progress-linear
-        v-model="progressPercentage"
-      ></v-progress-linear>
+      <v-progress-linear v-model="progressPercentage"></v-progress-linear>
     </v-layout>
 
     <v-layout class="play-status">
@@ -30,25 +28,22 @@
       </v-flex>
     </v-layout>
 
-    <v-layout class="controls">
+    <v-layout class="controls-container">
+      <v-flex xs4 />
+
       <v-flex
         xs3
-        class="previous"
+        class="controls"
       >
-        <v-btn @click="onClickPrevious()">&lt;</v-btn>
+        <v-icon @click="onClickPrevious()">skip_previous</v-icon>
+        <v-icon
+          class="play-pause"
+          @click="onTogglePlayPause()"
+        >{{isPlayingTrack ? "pause_circle_filled" : "play_circle_filled"}}</v-icon>
+        <v-icon @click="onClickNext()">skip_next</v-icon>
       </v-flex>
-      <v-flex
-        xs3
-        class="play"
-      >
-        <v-btn @click="onTogglePlayPause()">{{isPlayingTrack ? "Pause" : "Play"}}</v-btn>
-      </v-flex>
-      <v-flex
-        xs3
-        class="next"
-      >
-        <v-btn @click="onClickNext()">&gt;</v-btn>
-      </v-flex>
+
+      <v-flex xs4 />
     </v-layout>
 
   </v-container>
@@ -78,19 +73,19 @@
     text-align: center;
   }
 
-  .controls {
+  .controls-container {
     justify-content: space-between;
 
     .flex {
       display: flex;
     }
 
-    .play {
+    .controls {
       justify-content: center;
-    }
 
-    .next {
-      flex-direction: row-reverse;
+      .play-pause {
+        font-size: 40pt;
+      }
     }
   }
 }

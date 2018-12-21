@@ -28,6 +28,15 @@ export default class PlaylistTrackRow extends Vue {
     return this.$services.player.isPlayingTrack(this.track);
   }
 
+  get isActiveTrack() {
+    if (!this.track) {
+      // TODO: what do?
+      return false;
+    }
+
+    return this.$services.player.isActiveTrack(this.track);
+  }
+
   onClickPlayPause() {
     if (!this.track) {
       // TODO: what do?

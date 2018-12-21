@@ -17,13 +17,13 @@ export interface MasterPlayerService extends PlayerService {
   getCurrentTrack(): Promise<PlaylistTrack | null>;
   isActiveTrack(track: PlaylistTrack): boolean;
   isPlayingTrack(track: PlaylistTrack): boolean;
-  setTrack(track: PlaylistTrack): Promise<any>;
+  setTrack(track: PlaylistTrack | null): Promise<any>;
   playPlaylist(playlist: Playlist): Promise<any>;
   setIsPlaying(isPlaying: boolean): Promise<any>;
   notifyTrackEnded(track: PlaylistTrack): Promise<any>;
   notifyStarted(): Promise<any>;
   toggleTrackPlay(track: PlaylistTrack): Promise<any>;
-  setTrackProgress(progressMs: number): Promise<void>;
+  setTrackProgress(progressMs: number | null): Promise<void>;
 }
 
 export interface PlayerService {
@@ -31,6 +31,7 @@ export interface PlayerService {
 
   playTrack(track: PlaylistTrack): Promise<any>;
   resumeTrack(): Promise<any>;
+  seek(progressMs: number): Promise<any>;
   pauseTrack(): Promise<any>;
 }
 
@@ -66,7 +67,7 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
     return this.store.state.player.track;
   }
 
-  setTrack(track: PlaylistTrack): Promise<any> {
+  setTrack(track: PlaylistTrack | null): Promise<any> {
     return this.store.dispatch("player/setTrack", track);
   }
 
@@ -120,6 +121,17 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
     return await this.playTrack(track);
   }
 
+  async seek(progressMs: number) {
+    const track = await this.getCurrentTrack();
+    if (!track) {
+      // TODO: What do?
+      return;
+    }
+
+    await this.getPlayerForTrack(track.track).seek(progressMs);
+    await this.setTrackProgress(progressMs);
+  }
+
   async setIsPlaying(isPlaying: boolean): Promise<any> {
     this.store.dispatch("player/setIsPlaying", isPlaying);
   }
@@ -132,7 +144,7 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
     this.started$.next();
   }
 
-  async setTrackProgress(progressMs: number) {
+  async setTrackProgress(progressMs: number | null) {
     this.store.dispatch("player/setProgress", progressMs);
   }
 

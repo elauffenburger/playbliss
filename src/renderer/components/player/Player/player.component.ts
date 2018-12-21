@@ -8,6 +8,8 @@ import { PlaylistTrack, Playlist } from "../../../models";
 import YouTubePlayer from "../../youtube/YouTubePlayer/YouTubePlayer.vue";
 import SpotifyPlayer from "../../spotify/SpotifyPlayer/SpotifyPlayer.vue";
 
+const PLAY_PREVIOUS_TRACK_THRESHOLD_PERCENTAGE = 5;
+
 @Component({
   name: "Player",
   components: {
@@ -16,8 +18,16 @@ import SpotifyPlayer from "../../spotify/SpotifyPlayer/SpotifyPlayer.vue";
   }
 })
 export default class Player extends Vue {
-  currentPlaylist: Playlist | null = null;
   queue: PlaylistTrack[] = [];
+
+  get currentPlaylist(): Playlist | null {
+    return (
+      (this.track &&
+        this.track.playlistId &&
+        this.$services.playlists.getPlaylistById(this.track.playlistId)) ||
+      null
+    );
+  }
 
   get track(): PlaylistTrack | null {
     return this.store.state.player.track;
@@ -73,24 +83,26 @@ export default class Player extends Vue {
   }
 
   playPlaylist(playlist: Playlist) {
-    this.currentPlaylist = playlist;
     this.queue = playlist.tracks;
 
     this.playCurrentTrack();
   }
 
   onTrackEnded(track: PlaylistTrack) {
-    if (track.playlistId) {
-      this.currentPlaylist = this.$services.playlists.getPlaylistById(track.playlistId);
-    }
-
     this.playNextTrack();
   }
 
   playPreviousTrack() {
-    if (!this.currentPlaylist) {
+    if (
+      !this.currentPlaylist ||
+      !this.track ||
+      this.track.position == null ||
+      this.track.position == 0
+    ) {
       return;
     }
+
+    this.queue = this.cloneTracks(this.currentPlaylist.tracks, this.track.position - 1);
 
     this.playCurrentTrack();
   }
@@ -115,7 +127,20 @@ export default class Player extends Vue {
     this.$services.player.playTrack(track);
   }
 
+  shouldRestartTrackInsteadOfPlayingPrevious() {
+    const progressAboveSkipThreshold = (this.progressPercentage || 0) > PLAY_PREVIOUS_TRACK_THRESHOLD_PERCENTAGE;
+    const noPreviousTrack = (this.track && this.track.position != null && this.track.position == 0) || false;
+
+    return progressAboveSkipThreshold || noPreviousTrack;
+  }
+
   onClickPrevious() {
+    if (this.shouldRestartTrackInsteadOfPlayingPrevious()) {
+      this.$services.player.seek(1);
+
+      return;
+    }
+
     this.playPreviousTrack();
   }
 
@@ -131,8 +156,7 @@ export default class Player extends Vue {
     if (track.playlistId) {
       const playlist = this.$services.playlists.getPlaylistById(track.playlistId);
 
-      this.currentPlaylist = playlist;
-      this.queue = (playlist && playlist.tracks.slice(track.position)) || [];
+      this.queue = (playlist && this.cloneTracks(playlist.tracks, track.position)) || [];
     }
   }
 
@@ -142,5 +166,9 @@ export default class Player extends Vue {
     }
 
     this.$services.player.toggleTrackPlay(this.track);
+  }
+
+  private cloneTracks(tracks: PlaylistTrack[], from: number = 0) {
+    return tracks.slice(from);
   }
 }

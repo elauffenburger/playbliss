@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div>Logged into Spotify: {{loggedIn}}</div>
     <v-btn @click="onClickLogin()">Click to {{loggedIn ? 'Re-': ''}}Login To Spotify</v-btn>
   </div>
 </template>
@@ -25,57 +24,12 @@ export default class SpotifyLogin extends Vue {
     return this.$store;
   }
 
-  getAuthorizeUri(): Promise<string> {
-    return this.$services.spotify.getOAuthAuthorizationUri();
-  }
-
-  getRedirectUri(): Promise<string> {
-    return this.$services.spotify.getOAuthRedirectUri();
-  }
-
   get loggedIn(): boolean {
     return this.store.state.user.spotify.loggedIn;
   }
 
   async onClickLogin() {
-    const authWindow = new remote.BrowserWindow({
-      width: 600,
-      height: 400
-    });
-
-    this.authWindow = authWindow;
-
-    authWindow.loadURL(await this.getAuthorizeUri());
-
-    authWindow.webContents.on("did-navigate", async event => {
-      const uri = authWindow.webContents.getURL();
-
-      if (!uri.startsWith(await this.getRedirectUri())) {
-        console.log("login incomplete");
-        return;
-      }
-
-      const url = new URL(uri);
-      const token = toHashParams(url.hash)['access_token'];
-      if (!token) {
-        // TODO: what do?
-        console.log("failed to find token in url");
-        return;
-      }
-
-      this.completeLogin(token);
-    });
-  }
-
-  async completeLogin(token: string) {
-    console.log("login complete!");
-
-    if (this.authWindow) {
-      this.authWindow.close();
-    }
-
-    await this.$services.spotify.login(token);
-
+    await this.$services.spotify.login();
     this.emitLogin();
   }
 

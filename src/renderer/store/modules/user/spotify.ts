@@ -15,7 +15,8 @@ export const MUTATIONS = {
 export const ACTIONS = {
   SET_USER: "setUser",
   SET_TOKEN: "setToken",
-  SET_PLAYLISTS: "setPlaylists"
+  SET_PLAYLISTS: "setPlaylists",
+  SET_LOGGED_IN: "setLoggedIn"
 };
 
 export interface UserSpotifyState {
@@ -64,6 +65,9 @@ export function makeSpotifyModule(): Module<UserSpotifyState, AppState> {
       [ACTIONS.SET_USER](store, user: SpotifyApi.CurrentUsersProfileResponse) {
         store.commit(MUTATIONS.SET_USER, user);
         store.commit(MUTATIONS.SET_LOGGED_IN, true);
+      },
+      [ACTIONS.SET_LOGGED_IN](store, loggedIn: boolean) {
+        store.commit(MUTATIONS.SET_LOGGED_IN, loggedIn);
       },
       [ACTIONS.SET_PLAYLISTS](store, playlists: Playlist[]) {
         store.commit(MUTATIONS.SET_PLAYLISTS, playlists);

@@ -1,0 +1,76 @@
+<template>
+  <v-navigation-drawer
+    v-model="drawerOpen"
+    absolute
+    temporary
+    right
+  >
+    <v-list expand>
+      <v-list-tile>
+        <v-list-tile-title>
+          <h2 class="font-weight-thin">Config</h2>
+        </v-list-tile-title>
+      </v-list-tile>
+
+      <!-- Spotify -->
+      <v-list-group value="true">
+        <v-list-tile slot="activator">
+          <v-list-tile-title>Spotify</v-list-tile-title>
+        </v-list-tile>
+
+        <v-list class="pa-1">
+          <v-list-tile>
+            <v-list-tile-content>
+              <v-list-tile-title>Status: <span :class="{ 'spotify-status' : true, 'healthy': spotifyStatusHealthy, 'unhealthy': !spotifyStatusHealthy }"></span></v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+
+          <template v-for="(action, i) in spotifyActions">
+            <v-list-tile
+              v-if="!action.loggedInOnly || loggedIntoSpotify"
+              @click="action.action()"
+              :key="i"
+            >
+              <v-list-tile-action>
+                <v-icon>{{action.icon}}</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>{{action.text}}</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </template>
+        </v-list>
+      </v-list-group>
+
+      <!-- YouTube -->
+      <v-list-group value="true">
+        <v-list-tile slot="activator">
+          <v-list-tile-title>YouTube</v-list-tile-title>
+        </v-list-tile>
+      </v-list-group>
+
+    </v-list>
+  </v-navigation-drawer>
+</template>
+
+<script src="./music-source-config-drawer.component.ts" lang="ts"></script>
+
+<style lang="less">
+.spotify-status {
+  &.healthy {
+    color: green;
+
+    &::after {
+      content: "Healthy";
+    }
+  }
+
+  &.unhealthy {
+    color: red;
+
+    &::after {
+      content: "Unhealthy";
+    }
+  }
+}
+</style>

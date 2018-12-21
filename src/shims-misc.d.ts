@@ -8,6 +8,12 @@ declare module "spotify-web-api-node" {
     body: T;
   }
 
+  export class WebapiError {
+    name: 'WebapiError';
+    message: string;
+    statusCode: number;
+  }
+
   export interface PlayOptions {
     context_uri?: string;
     uris?: string[];
@@ -18,7 +24,7 @@ declare module "spotify-web-api-node" {
   export interface CurrentPlayback {
     currently_playing_type: string;
     is_playing: boolean;
-    item: SpotifyApi.TrackObjectFull;
+    item?: SpotifyApi.TrackObjectFull;
     progress_ms: number;
   }
 

@@ -1,10 +1,10 @@
 import Vue from "vue";
-import { SubscribeActionStore, Store } from "vuex";
+import { SubscribeActionStore } from "vuex";
 import { AppState } from "../../../store";
-import { YouTubeTrack, MusicSource } from "../../../models";
+import { YouTubeTrack } from "../../../models";
 import Component from "vue-class-component";
 import YouTube from "youtube-player";
-import { MasterPlayerService } from "src/renderer/services/player";
+import { YouTubePlayerPoller } from './helpers/youtube-poller';
 
 @Component({
   name: "YouTubePlayer"
@@ -80,40 +80,4 @@ export default class YouTubePlayer extends Vue {
   }
 
   onVideoEnd() {}
-}
-
-class YouTubePlayerPoller {
-  static poller: any;
-
-  constructor(
-    private youtube: YouTube,
-    private player: MasterPlayerService,
-    private options: {
-      singleInstance: boolean;
-      pollRateMs: number;
-    }
-  ) {}
-
-  poll() {
-    if (this.options.singleInstance && YouTubePlayerPoller.poller) {
-      clearInterval(YouTubePlayerPoller.poller);
-    }
-
-    YouTubePlayerPoller.poller = setInterval(
-      () => this.syncPlaybackStatus(),
-      this.options.pollRateMs
-    );
-  }
-
-  async syncPlaybackStatus() {
-    const track = await this.player.getCurrentTrack();
-    if (!track || track.track.source != MusicSource.YouTube) {
-      return;
-    }
-
-    const progressSec = await this.youtube.getCurrentTime();
-    const progressMs = progressSec * 1000;
-
-    this.player.setTrackProgress(progressMs);
-  }
 }
