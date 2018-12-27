@@ -4,7 +4,7 @@
     @dblclick="onClickPlayPause()"
   >
     <td class="stripe"></td>
-    <td><span class='youtube-logo'>[YouTube]</span> {{track.track.name}}</td>
+    <td>{{track.track.name}}</td>
     <td>Unknown</td>
     <td>Unknown</td>
   </tr>

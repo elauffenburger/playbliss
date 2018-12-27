@@ -6,7 +6,7 @@
   >
     <td class="stripe"></td>
     <td>
-      <span class='spotify-logo'>[Spotify]</span> {{track.track.name}}
+      {{track.track.name}}
     </td>
     <td>
       {{track.track.artist}}

@@ -51,6 +51,15 @@ export default class Player extends Vue {
     return (progressMs / durationMs) * 100;
   }
 
+  get isActiveTrack() {
+    const track = this.track;
+    if (!track) {
+      return false;
+    }
+
+    return this.$services.player.isActiveTrack(track);
+  }
+
   get isPlayingTrack() {
     const track = this.track;
     if (!track) {

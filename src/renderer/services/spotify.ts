@@ -114,6 +114,8 @@ export class DefaultSpotifyService implements SpotifyService {
         }
 
         const url = new URL(uri);
+        console.log("spotify oauth redirected uri:", url);
+
         const token = toHashParams(url.hash)["access_token"];
         if (!token) {
           // TODO: what do?

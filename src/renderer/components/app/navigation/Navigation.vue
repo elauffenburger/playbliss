@@ -1,23 +1,31 @@
 <template>
   <v-navigation-drawer
     class="navigation-drawer"
-    absolute
-    stateless
-    style="max-height: calc(100% - 185px);"
-    v-model="drawerOpen"
+    permanent
   >
     <v-list expand>
-      <v-list-group>
-        <v-list-tile slot="activator">
-          <v-list-tile-title>Playlists</v-list-tile-title>
+      <template v-for="(item, index) in navigation">
+        <v-list-tile
+          v-if="item.title"
+          :key="index"
+          @click="item.action"
+        >
+          <v-list-tile-action>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+          </v-list-tile-content>
         </v-list-tile>
-
-        <v-list>
-          <v-list-tile @click="">
-            <v-list-tile-title>View</v-list-tile-title>
-          </v-list-tile>
-        </v-list>
-      </v-list-group>
+        <v-divider
+          v-else-if="item.divider"
+          :key="index"
+        ></v-divider>
+        <v-subheader
+          v-else-if="item.header"
+          :key="item.header"
+        >{{ item.header }}</v-subheader>
+      </template>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -25,8 +33,4 @@
 <script lang="ts" src="./navigation.component.ts"></script>
 
 <style lang="less">
-.navigation-drawer {
-  top: 65px;
-  z-index: 1;
-}
 </style>

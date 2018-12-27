@@ -10,9 +10,9 @@ Vue.use(Router);
 
 export const ROUTES = {
   HOME: "/home",
-  PLAYLIST: "/playlist",
+  VIEW_PLAYLIST: "/playlist",
   NEW_PLAYLIST: "/playlists/new",
-  ALL_PLAYLISTS: "/playlists/all"
+  ALL_PLAYLISTS: "/playlists/all",
 };
 
 function parseComplexQuery(route: Route) {
@@ -37,7 +37,7 @@ export default new Router({
       component: Home
     },
     {
-      path: ROUTES.PLAYLIST,
+      path: ROUTES.VIEW_PLAYLIST,
       name: "playlist",
       component: ViewPlaylist,
       props: route => parseComplexQuery(route)

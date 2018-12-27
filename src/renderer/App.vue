@@ -11,8 +11,13 @@
       </div>
 
       <div class="content">
-        <Navigation v-model="navigationDrawerOpen" />
-        <router-view></router-view>
+        <div class="navigation-drawer">
+          <Navigation />
+        </div>
+
+        <div class="content-inner">
+          <router-view></router-view>
+        </div>
       </div>
 
       <Player class="player" />
@@ -33,13 +38,24 @@ html {
   flex-direction: column;
 
   .content {
+    display: flex;
     flex: 1 1 100%;
-
-    overflow-y: auto;
-    overflow-x: hidden;
 
     > * {
       max-height: inherit;
+    }
+
+    .navigation-drawer {
+      display: flex;
+      flex: 1 1 unset;
+      z-index: 1;
+      flex-direction: column;
+    }
+
+    .content-inner {
+      flex: 1 1 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
   }
 

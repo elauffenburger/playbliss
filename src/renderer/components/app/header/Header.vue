@@ -2,18 +2,6 @@
   <v-toolbar class="nav-container" style="z-index: 2;">
     <v-toolbar-side-icon @click="onClickToolbarIcon()"></v-toolbar-side-icon>
     <v-toolbar-title>PlayBliss</v-toolbar-title>
-
-    <v-toolbar-items class="nav">
-      <v-btn
-        flat
-        @click="navigateTo('/home')"
-      >Home</v-btn>
-
-      <v-btn
-        flat
-        @click="navigateTo('/playlists/all')"
-      >Playlists</v-btn>
-    </v-toolbar-items>
     
     <v-spacer />
 

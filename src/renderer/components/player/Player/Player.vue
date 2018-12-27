@@ -13,39 +13,41 @@
       </v-flex>
     </v-layout>
 
-    <v-layout>
-      <v-progress-linear v-model="progressPercentage"></v-progress-linear>
-    </v-layout>
-
-    <v-layout class="play-status">
-      <v-flex xs12>
-        <div v-if="isPlayingTrack">
-          <span>Now Playing: {{track.track.name}}</span>
-        </div>
-        <div v-else>
-          <span>Paused</span>
-        </div>
-      </v-flex>
-    </v-layout>
-
-    <v-layout class="controls-container">
-      <v-flex xs4 />
-
-      <v-flex
-        xs3
-        class="controls"
-      >
-        <v-icon @click="onClickPrevious()">skip_previous</v-icon>
-        <v-icon
-          class="play-pause"
-          @click="onTogglePlayPause()"
-        >{{isPlayingTrack ? "pause_circle_filled" : "play_circle_filled"}}</v-icon>
-        <v-icon @click="onClickNext()">skip_next</v-icon>
+    <v-layout class="player-info">
+      <v-flex class="play-status" xs2>
+        <v-layout>
+          <v-flex xs12>
+            <div v-if="isActiveTrack">
+              <span>Now Playing: {{track.track.name}}</span>
+            </div>
+          </v-flex>
+        </v-layout>
       </v-flex>
 
-      <v-flex xs4 />
-    </v-layout>
+      <v-flex>
+        <v-layout>
+          <v-progress-linear v-model="progressPercentage"></v-progress-linear>
+        </v-layout>
 
+        <v-layout class="controls-container">
+          <v-flex xs4 />
+
+          <v-flex
+            xs3
+            class="controls"
+          >
+            <v-icon @click="onClickPrevious()">skip_previous</v-icon>
+            <v-icon
+              class="play-pause"
+              @click="onTogglePlayPause()"
+            >{{isPlayingTrack ? "pause_circle_filled" : "play_circle_filled"}}</v-icon>
+            <v-icon @click="onClickNext()">skip_next</v-icon>
+          </v-flex>
+
+          <v-flex xs4 />
+        </v-layout>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -69,8 +71,14 @@
     }
   }
 
-  .play-status {
+  .player-info {
     text-align: center;
+    justify-content: center;
+    align-items: center;
+
+    .play-status {
+      margin-right: 3%;
+    }
   }
 
   .controls-container {
