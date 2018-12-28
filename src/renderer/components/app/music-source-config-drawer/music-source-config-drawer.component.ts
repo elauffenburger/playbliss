@@ -1,10 +1,34 @@
 import Vue from "vue";
-import Component from "vue-class-component";
 import { Store } from "vuex";
-import { AppState } from "src/renderer/store";
+import { Component, Prop, Watch } from "vue-property-decorator";
 
 import SpotifyLogin from "../../spotify/SpotifyLogin.vue";
-import { Prop, Watch } from "vue-property-decorator";
+
+import { AppState } from "../../../store";
+import { MusicSource } from "../../../models";
+import { stringifyMusicSource } from "../../../helpers/util";
+
+interface Action {
+  loggedInOnly?: boolean;
+  text: string;
+  icon: string;
+  action: () => void;
+}
+
+interface GeneralConfig {
+  primaryMusicSourceDialogOpen: boolean;
+  pendingPrimaryMusicSource: MusicSource | null;
+  musicSources: { text: string; value: MusicSource }[];
+}
+
+interface SpotifyConfig {
+  actions: Action[];
+}
+
+interface ConfigLookup {
+  general: GeneralConfig;
+  spotify: SpotifyConfig;
+}
 
 @Component({
   name: "MusicSourceConfigDrawer",
@@ -32,6 +56,10 @@ export default class MusicSourceConfigDrawer extends Vue {
     return this.$store;
   }
 
+  get primaryMusicSource(): MusicSource | null {
+    return this.store.state.player.primaryMusicSource;
+  }
+
   get spotifyStatusHealthy(): boolean {
     const healthy = this.store.state.user.spotify.loggedIn;
 
@@ -54,23 +82,63 @@ export default class MusicSourceConfigDrawer extends Vue {
     this.$services.spotify.clearCachedPlaylists();
   }
 
-  spotifyActions: { loggedInOnly?: boolean; text: string; icon: string; action: () => void }[] = [
-    {
-      text: "Login to Spotify",
-      icon: "perm_identity",
-      action: () => this.loginToSpotify()
+  setPendingPrimaryMusicSource(source: MusicSource) {
+    this.config.general.pendingPrimaryMusicSource = source;
+  }
+
+  onChangePrimaryMusicSource(source: MusicSource) {
+    this.$services.player.setPrimaryMusicSource(source);
+
+    this.setPrimaryMusicSourceDialogVisibility(false);
+  }
+
+  onClickClosePrimaryMusicSourceDialog() {
+    this.setPrimaryMusicSourceDialogVisibility(false);
+  }
+
+  setPrimaryMusicSourceDialogVisibility(visible: boolean) {
+    this.config.general.primaryMusicSourceDialogOpen = visible;
+  }
+
+  stringifyMusicSource(source: MusicSource) {
+    return stringifyMusicSource(source);
+  }
+
+  config: ConfigLookup = {
+    general: {
+      primaryMusicSourceDialogOpen: false,
+      pendingPrimaryMusicSource: null,
+      musicSources: [
+        {
+          text: stringifyMusicSource(MusicSource.Spotify),
+          value: MusicSource.Spotify
+        },
+        {
+          text: stringifyMusicSource(MusicSource.YouTube),
+          value: MusicSource.YouTube
+        }
+      ]
     },
-    {
-      text: "Sync Spotify Playlists",
-      loggedInOnly: true,
-      icon: "sync",
-      action: () => this.syncSpotifyPlaylists()
-    },
-    {
-      text: "Clear Synced Spotify Playlists",
-      loggedInOnly: true,
-      icon: "clear",
-      action: () => this.clearSpotifyPlaylists()
+    spotify: {
+      actions: [
+        {
+          text: "Login to Spotify",
+          icon: "perm_identity",
+          action: () => this.loginToSpotify()
+        },
+        {
+          text: "Sync Spotify Playlists",
+          loggedInOnly: true,
+          icon: "sync",
+          action: () => this.syncSpotifyPlaylists()
+        },
+        {
+          text: "Clear Synced Spotify Playlists",
+          loggedInOnly: true,
+          icon: "clear",
+          action: () => this.clearSpotifyPlaylists()
+        }
+      ]
     }
-  ];
+  };
 }

@@ -1,3 +1,5 @@
+import { MusicSource } from '../models';
+
 const DEBOUNCE_INTERVAL = 700;
 
 export function toHashParams(hash: string): any {
@@ -24,4 +26,15 @@ export function debouncer(): (callback: () => any) => void {
       callback();
     }, DEBOUNCE_INTERVAL);
   };
+}
+
+export function stringifyMusicSource(source: MusicSource) {
+  switch (source) {
+    case MusicSource.Spotify:
+      return "Spotify";
+    case MusicSource.YouTube:
+      return "YouTube";
+    default:
+      return "Unknown";
+  }
 }

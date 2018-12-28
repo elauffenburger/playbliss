@@ -14,6 +14,8 @@ export interface MasterPlayerService extends PlayerService {
   started$: Observable<any>;
   trackEnded$: Observable<TrackEndedEventArgs>;
 
+  setPrimaryMusicSource(source: MusicSource): Promise<void>;
+
   getCurrentTrack(): Promise<PlaylistTrack | null>;
   isActiveTrack(track: PlaylistTrack): boolean;
   isPlayingTrack(track: PlaylistTrack): boolean;
@@ -41,7 +43,14 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
   started$ = new Subject();
   trackEnded$: Subject<TrackEndedEventArgs> = new Subject();
 
-  constructor(private store: Store<AppState>, private players: PlayerService[]) {}
+  constructor(
+    private store: Store<AppState>,
+    private players: PlayerService[]
+  ) {}
+
+  async setPrimaryMusicSource(source: MusicSource) {
+    this.store.dispatch("player/setPrimaryMusicSource", source);
+  }
 
   isPlayingTrack(track: PlaylistTrack): boolean {
     const state = this.store.state.player;
@@ -57,7 +66,10 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
     }
 
     if (state.track.playlistId && track.playlistId) {
-      return state.track.playlistId == track.playlistId && state.track.position == track.position;
+      return (
+        state.track.playlistId == track.playlistId &&
+        state.track.position == track.position
+      );
     }
 
     return state.track.track.id == track.track.id;
@@ -114,7 +126,9 @@ export class DefaultMasterPlayerService implements MasterPlayerService {
 
     // If the currently selected track is the passed in track:
     if (await this.isActiveTrack(track)) {
-      return state.isPlaying ? await this.pauseTrack() : await this.resumeTrack();
+      return state.isPlaying
+        ? await this.pauseTrack()
+        : await this.resumeTrack();
     }
 
     // ...otherwise, start playing the passed track!

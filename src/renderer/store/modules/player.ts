@@ -1,13 +1,14 @@
 import { Module } from "vuex";
 import { AppState } from "..";
-import { PlaylistTrack } from "../../models";
+import { PlaylistTrack, MusicSource } from "../../models";
 
 export const MUTATIONS = {
   SET_TRACK: "setTrack",
   SET_IS_PLAYING: "setIsPlaying",
   SET_PLAYLIST: "setPlaylist",
   SET_QUEUE_POSITION: "setQueuePosition",
-  SET_PROGRESS: "setProgress"
+  SET_PROGRESS: "setProgress",
+  SET_PRIMARY_MUSIC_SOURCE: "setPrimaryMusicSource"
 };
 
 export const ACTIONS = {
@@ -17,7 +18,8 @@ export const ACTIONS = {
   PLAY_TRACK: "playTrack",
   RESUME_TRACK: "resumeTrack",
   PAUSE_TRACK: "pauseTrack",
-  SET_PROGRESS: "setProgress"
+  SET_PROGRESS: "setProgress",
+  SET_PRIMARY_MUSIC_SOURCE: "setPrimaryMusicSource"
 };
 
 export const GETTERS = {
@@ -26,6 +28,7 @@ export const GETTERS = {
 
 export interface PlayerState {
   isPlaying: boolean;
+  primaryMusicSource: MusicSource | null;
   progress: {
     progressMs: number | null;
   };
@@ -41,6 +44,7 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
     namespaced: true,
     state: {
       isPlaying: false,
+      primaryMusicSource: null,
       track: null,
       progress: {
         progressMs: null
@@ -55,6 +59,9 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
       },
       [MUTATIONS.SET_PROGRESS](state, progressMs: number) {
         state.progress.progressMs = progressMs;
+      },
+      [MUTATIONS.SET_PRIMARY_MUSIC_SOURCE](state, source: MusicSource) {
+        state.primaryMusicSource = source;
       }
     },
     actions: {
@@ -77,6 +84,9 @@ export function makePlayerModule(): Module<PlayerState, AppState> {
       },
       [ACTIONS.SET_PROGRESS](store, progressMs: number) {
         store.commit(MUTATIONS.SET_PROGRESS, progressMs);
+      },
+      [ACTIONS.SET_PRIMARY_MUSIC_SOURCE](store, source: MusicSource) {
+        store.commit(MUTATIONS.SET_PRIMARY_MUSIC_SOURCE, source);
       }
     }
   };

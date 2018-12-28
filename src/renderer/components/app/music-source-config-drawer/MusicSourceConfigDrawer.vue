@@ -12,10 +12,54 @@
         </v-list-tile-title>
       </v-list-tile>
 
+      <v-list-group value="true">
+        <v-list-tile slot="activator">
+          <v-list-tile-content>
+            <v-list-tile-title>General</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+
+        <v-list class="pa-1">
+          <v-list-tile @click="config.general.primaryMusicSourceDialogOpen = true">
+            <v-list-tile-content>
+              <v-list-tile-title>Primary Music Source{{ primaryMusicSource ? ` (${stringifyMusicSource(primaryMusicSource)})`: `` }}</v-list-tile-title>
+
+              <v-dialog
+                width="300"
+                v-model="config.general.primaryMusicSourceDialogOpen"
+              >
+                <v-card>
+                  <v-card-title>Select Primary Music Source:</v-card-title>
+                  <v-card-text>
+                    <div>
+                      <v-select
+                        :value="primaryMusicSource"
+                        :items="config.general.musicSources"
+                        @change="setPendingPrimaryMusicSource($event)"
+                      ></v-select>
+                    </div>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      flat
+                      @click="onChangePrimaryMusicSource(config.general.pendingPrimaryMusicSource)"
+                    >Ok</v-btn>
+                    <v-btn flat @click="onClickClosePrimaryMusicSourceDialog()">Cancel</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+      </v-list-group>
+
       <!-- Spotify -->
       <v-list-group value="true">
         <v-list-tile slot="activator">
-          <v-list-tile-title>Spotify</v-list-tile-title>
+          <v-list-tile-content>
+            <v-list-tile-title>Spotify</v-list-tile-title>
+          </v-list-tile-content>
         </v-list-tile>
 
         <v-list class="pa-1">
@@ -25,7 +69,7 @@
             </v-list-tile-content>
           </v-list-tile>
 
-          <template v-for="(action, i) in spotifyActions">
+          <template v-for="(action, i) in config.spotify.actions">
             <v-list-tile
               v-if="!action.loggedInOnly || loggedIntoSpotify"
               @click="action.action()"
