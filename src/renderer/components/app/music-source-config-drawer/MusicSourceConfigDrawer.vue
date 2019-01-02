@@ -21,6 +21,9 @@
 
         <v-list class="pa-1">
           <v-list-tile @click="config.general.primaryMusicSourceDialogOpen = true">
+            <v-list-tile-action>
+              <v-icon>library_music</v-icon>
+            </v-list-tile-action>
             <v-list-tile-content>
               <v-list-tile-title>Primary Music Source{{ primaryMusicSource ? ` (${stringifyMusicSource(primaryMusicSource)})`: `` }}</v-list-tile-title>
 

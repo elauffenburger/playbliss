@@ -8,7 +8,10 @@ import {
 } from "./services/spotify";
 import { DefaultYouTubeService, YouTubeService } from "./services/youtube";
 import { youtube_v3 } from "googleapis";
-import { DefaultMasterPlayerService, MasterPlayerService } from "./services/player";
+import {
+  DefaultMasterPlayerService,
+  MasterPlayerService
+} from "./services/player";
 import {
   DefaultSpotifyPlayerService,
   SpotifyPlayerService
@@ -19,6 +22,7 @@ import {
 } from "./services/player/youtube-player";
 import Vue from "vue";
 import { PlaylistService, DefaultPlaylistService } from "./services/playlist";
+import { UiService, DefaultUiService } from "./services/ui";
 
 Vue.use({
   install: vue => {
@@ -51,6 +55,7 @@ export interface Services {
   spotifyPlayer: SpotifyPlayerService;
   youtubePlayer: YouTubePlayerService;
   playlists: PlaylistService;
+  ui: UiService;
 }
 
 export default function makeServices(options: InjectionOptions): Services {
@@ -63,9 +68,13 @@ export default function makeServices(options: InjectionOptions): Services {
     user: new DefaultUserService(store),
     spotify: new DefaultSpotifyService(store, options.spotify),
     youtube: new DefaultYouTubeService(options.youtube.client),
-    player: new DefaultMasterPlayerService(store, [spotifyPlayer, youtubePlayer]),
+    player: new DefaultMasterPlayerService(store, [
+      spotifyPlayer,
+      youtubePlayer
+    ]),
     spotifyPlayer,
     youtubePlayer,
-    playlists: new DefaultPlaylistService(store)
+    playlists: new DefaultPlaylistService(store),
+    ui: new DefaultUiService(store)
   };
 }

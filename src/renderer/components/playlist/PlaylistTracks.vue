@@ -2,35 +2,16 @@
   <v-container class="playlist-tracks">
     <v-layout>
       <v-flex xs12>
-        <AddPlaylistTrack :playlist="playlist" />
-      </v-flex>
-    </v-layout>
-
-    <v-layout>
-      <v-flex xs12>
-        <v-data-table
-          :headers="headers"
-          :items="playlist.tracks"
-          :hide-actions="true"
-          class="elevation-1 playlist-tracks"
-        >
-          <template
-            slot="items"
-            slot-scope="props"
-          >
-            <SpotifyPlaylistTrackRow
-              v-if="props.item.track.source == 'spotify'"
-              :track="props.item"
-              :playlist="playlist"
-            />
-
-            <YouTubePlaylistTrackRow
-              v-if="props.item.track.source == 'youtube'"
-              :track="props.item"
-              :playlist="playlist"
-            />
+        <TracksTable :tracks="playlist.tracks">
+          <template slot="no-data">
+            <tr>
+              <td
+                colspan="4"
+                class="text-xs-center"
+              >Add some new songs to get started!</td>
+            </tr>
           </template>
-        </v-data-table>
+        </TracksTable>
       </v-flex>
     </v-layout>
   </v-container>
@@ -42,15 +23,13 @@ import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { Playlist } from "../../models";
 
-import SpotifyPlaylistTrackRow from "../../components/spotify/SpotifyPlaylistTrackRow.vue";
-import YouTubePlaylistTrackRow from "../../components/youtube/YouTubePlaylistTrackRow.vue";
+import TracksTable from "../../components/tracks/TracksTable/TracksTable.vue";
 import AddPlaylistTrack from "../../components/playlist/AddPlaylistTrack.vue";
 
 @Component({
   name: "PlaylistTracks",
   components: {
-    SpotifyPlaylistTrackRow,
-    YouTubePlaylistTrackRow,
+    TracksTable,
     AddPlaylistTrack
   }
 })
@@ -83,9 +62,5 @@ export default class PlaylistTracks extends Vue {
 <style lang="less">
 .playlist-tracks {
   padding: 0;
-
-  thead tr th:first-child {
-    padding: 0;
-  }
 }
 </style>

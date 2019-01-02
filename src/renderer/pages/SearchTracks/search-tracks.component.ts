@@ -1,80 +1,14 @@
-<template>
-  <v-layout>
-    <v-flex xs3>
-      <v-select
-        v-model="source"
-        label="Source"
-        :items="sources"
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs3>
-      <v-select
-        v-model="entryMethod"
-        label="Entry Method"
-        :items="source.entryMethods"
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex
-      v-if="entryMethod == 'search'"
-      xs6
-    >
-      <v-autocomplete
-        v-model="track"
-        :items="tracks"
-        :loading="loading"
-        :search-input.sync="search"
-        :label="entryLabel"
-        item-text="text"
-        item-value="track"
-      >
-        <template slot="no-data">
-          <v-list-tile>
-            <v-list-tile-title>
-              Search for a song
-            </v-list-tile-title>
-          </v-list-tile>
-        </template>
-
-        <template
-          slot="item"
-          slot-scope="{ item }"
-        >
-          <v-list-tile>
-            <v-list-tile-title>
-              {{item.track.name}} | {{item.track.artist}} | {{item.track.album}}
-            </v-list-tile-title>
-          </v-list-tile>
-        </template>
-      </v-autocomplete>
-    </v-flex>
-
-    <v-flex
-      v-if="entryMethod == 'manual'"
-      xs6
-    >
-      <v-text-field
-        label="Enter Song URL"
-        v-model="manualEntry"
-      ></v-text-field>
-    </v-flex>
-  </v-layout>
-</template>
-
-<script lang="ts">
 import Vue from "vue";
 import { Store } from "vuex";
-import { Watch, Component, Prop } from "vue-property-decorator";
+import { Watch, Component } from "vue-property-decorator";
 
-import { MusicSource, Track, Playlist } from "../../models";
+import { MusicSource, Track, PlaylistTrack } from "../../models";
 import { AppState } from "../../store";
 import { mapSpotifyTrack, mapYouTubeVideo } from "../../helpers/tracks";
-import { clearTimeout, setTimeout } from "timers";
 import { debouncer } from "../../helpers/util";
-import { youtube_v3 } from 'googleapis';
+import { youtube_v3 } from "googleapis";
+
+import TracksTable from "../../components/tracks/TracksTable/TracksTable.vue";
 
 enum EntryMethod {
   search = "search",
@@ -119,26 +53,29 @@ const SOURCES: { [key: string]: SourceOption } = {
     text: "YouTube",
     value: {
       source: MusicSource.YouTube,
-      entryMethods: [ENTRY_METHODS.MANUAL]
+      entryMethods: [ENTRY_METHODS.SEARCH, ENTRY_METHODS.MANUAL]
     }
   }
 };
 
-@Component({ name: "SearchTrack" })
-export default class SearchTrack extends Vue {
+@Component({
+  name: "SearchTracks",
+  components: {
+    TracksTable
+  }
+})
+export default class SearchTracks extends Vue {
   sources: SourceOption[] = [SOURCES.SPOTIFY, SOURCES.YOUTUBE];
 
   loading = false;
   entryLabel = "";
-  tracks: { text: string; track: Track }[] = [];
+  tracks: PlaylistTrack[] = [];
 
   source: Source = SOURCES.SPOTIFY.value;
   entryMethod: EntryMethod = this.getFirstEntryMethodForSource(
     SOURCES.SPOTIFY.value
   );
-  search = "";
   manualEntry = "";
-  track: Track | null = null;
 
   debouncedSearch = debouncer();
   debouncedManualEntry = debouncer();
@@ -154,66 +91,99 @@ export default class SearchTrack extends Vue {
     this.entryMethod = this.getFirstEntryMethodForSource(source);
   }
 
-  @Watch("search")
-  onSearchChanged(search: string) {
-    this.loading = true;
-
-    this.debouncedSearch(async () => {
-      await this.runSearch(search);
-      this.loading = false;
-    });
-  }
-
   @Watch("manualEntry")
   onManualEntryChanged(url: string) {
     this.loading = true;
 
     this.debouncedManualEntry(() => {
       this.updateTrackFromManualEntry(url);
+
       this.loading = false;
     });
-  }
-
-  @Watch("track")
-  onTrackChanged(track: Track) {
-    this.$emit("trackSelected", track);
   }
 
   get store(): Store<AppState> {
     return this.$store;
   }
 
+  get trackSearch(): string {
+    return this.store.state.ui.search;
+  }
+
+  mounted() {
+    this.runSearch(this.trackSearch);
+  }
+
+  onSearchChange(search: string) {
+    this.debouncedSearch(async () => {
+      await this.runSearch(search);
+    });
+  }
+
   async runSearch(search: string): Promise<any> {
+    this.loading = true;
+
     if (!search) {
       this.tracks = [];
       return;
     }
 
+    this.$services.ui.setSearch(search);
+
     switch (this.source.source) {
       case MusicSource.Spotify:
         return await this.runSpotifySearch(search);
       case MusicSource.YouTube:
-        this.runYouTubeSearch(search);
-        break;
+        return await this.runYouTubeSearch(search);
     }
+
+    this.loading = false;
   }
 
   async runSpotifySearch(search: string) {
     const spotifyTracks = await this.$services.spotify.searchTrack(search);
+    const tracks = spotifyTracks.map<Track>(t => mapSpotifyTrack(t));
 
-    const tracks = spotifyTracks.map(t => {
-      const track = mapSpotifyTrack(t);
-
-      return {
-        text: track.name,
-        track: track
-      };
+    const playlist = await this.$services.playlists.createPlaylist({
+      tracks: tracks,
+      isVirtual: true
     });
 
-    this.tracks = this.tracks.concat(tracks);
+    this.tracks = playlist.tracks;
   }
 
-  runYouTubeSearch(search: string) {}
+  async runYouTubeSearch(search: string) {
+    const youtubeTracks = await this.searchYouTubeVideos(search);
+
+    const tracks = youtubeTracks
+      .map(t => mapYouTubeVideo(t))
+      .filter(t => !!t) as Track[];
+
+    const playlist = await this.$services.playlists.createPlaylist({
+      isVirtual: true,
+      tracks
+    });
+
+    this.tracks = playlist.tracks;
+  }
+
+  async searchYouTubeVideos(
+    search: string
+  ): Promise<youtube_v3.Schema$Video[]> {
+    const searchVideosResponse = await this.$services.youtube.searchVideos(
+      search
+    );
+
+    const videoIds = (searchVideosResponse.items || [])
+      .map(v => v.id && v.id.videoId)
+      .filter(id => !!id);
+
+    const getVideosResponse = await this.$services.youtube.getVideos({
+      id: videoIds.join(",")
+    });
+
+    return getVideosResponse.items || [];
+  }
 
   updateTrackFromManualEntry(url: string) {
     switch (this.source.source) {
@@ -224,9 +194,9 @@ export default class SearchTrack extends Vue {
   }
 
   async updateTrackFromYouTubeManualEntry(url: string) {
-    const youtubeVideo: youtube_v3.Schema$Video = await this.$services.youtube.getVideoByUrl(url);
-
-    this.track = mapYouTubeVideo(youtubeVideo);
+    const youtubeVideo: youtube_v3.Schema$Video = await this.$services.youtube.getVideoByUrl(
+      url
+    );
   }
 
   getFirstEntryMethodForSource(source: Source): EntryMethod {
@@ -246,12 +216,7 @@ export default class SearchTrack extends Vue {
 
   reset() {
     this.tracks = [];
-    this.search = "";
     this.manualEntry = "";
-    this.track = null;
+    this.$services.ui.setSearch("");
   }
 }
-</script>
-
-<style>
-</style>

@@ -3,7 +3,9 @@
     v-bind:class="{ 'youtube-playlist-track': true, 'active': isActiveTrack }"
     @dblclick="onClickPlayPause()"
   >
-    <td class="stripe"></td>
+    <td>
+      <span class="stripe"></span>
+    </td>
     <td>{{track.track.name}}</td>
     <td>Unknown</td>
     <td>Unknown</td>
@@ -29,19 +31,8 @@ export default class SpotifyPlaylistTrack extends PlaylistTrackRow {}
 table.v-table {
   tbody {
     tr.youtube-playlist-track {
-      .playlist-track();
+      .playlist-track(@active, @youtube-red);
 
-      &.active {
-        color: @active;
-      }
-
-      td.stripe {
-        position: absolute;
-        background-color: @youtube-red;
-        padding-left: 0;
-        padding-right: 0;
-        width: 10px;
-      }
       padding-bottom: 5px;
     }
   }

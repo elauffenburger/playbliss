@@ -10,7 +10,7 @@
           :key="index"
           @click="item.action"
         >
-          <v-list-tile-action>
+          <v-list-tile-action v-if="item.icon">
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>

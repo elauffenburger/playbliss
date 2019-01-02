@@ -55,12 +55,7 @@ export default class Playlists extends Vue {
 
   goToPlaylist(playlist: Playlist) {
     this.$router.push({
-      path: ROUTES.VIEW_PLAYLIST,
-      query: {
-        json: JSON.stringify({
-          playlistId: playlist.id
-        })
-      }
+      path: ROUTES.BUILD.viewPlaylist(playlist.id)
     });
   }
 

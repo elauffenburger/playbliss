@@ -33,7 +33,7 @@ import { Store } from "vuex";
 import { Playlist, Track } from "../../models";
 import { AppState } from "../../store";
 import { ROUTES } from "../../router";
-import uuid from 'uuid/v4';
+import uuid from "uuid/v4";
 
 @Component({ name: "NewPlaylist" })
 export default class NewPlaylist extends Vue {
@@ -46,29 +46,15 @@ export default class NewPlaylist extends Vue {
     return this.$store;
   }
 
-  created() {
-    
-  }
+  created() {}
 
   mounted() {}
 
   async createPlaylist() {
-    const playlist: Playlist = {
-      id: uuid(),
+    await this.$services.playlists.createPlaylist({
       name: this.playlistName,
-      tracks: []
-    };
-
-    playlist.tracks = (this.tracks || [])
-      .map((track, i) => {
-        return {
-          track: track,
-          position: i,
-          playlist: playlist
-        };
-      });
-
-    await this.$services.playlists.createPlaylist(playlist);
+      tracks: this.tracks || []
+    });
 
     this.$router.replace(ROUTES.ALL_PLAYLISTS);
   }

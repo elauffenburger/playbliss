@@ -14,7 +14,10 @@
     </v-layout>
 
     <v-layout class="player-info">
-      <v-flex class="play-status" xs2>
+      <v-flex
+        class="play-status"
+        xs2
+      >
         <v-layout>
           <v-flex xs12>
             <div v-if="isActiveTrack">
@@ -77,7 +80,14 @@
     align-items: center;
 
     .play-status {
-      margin-right: 3%;
+      @width: 300px;
+
+      flex-basis: 100%;
+      flex-grow: 1;
+
+      min-width: @width;
+      width: @width;
+      max-width: @width;
     }
   }
 

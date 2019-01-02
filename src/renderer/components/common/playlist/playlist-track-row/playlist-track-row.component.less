@@ -1,4 +1,24 @@
-.playlist-track() {
-    user-select: none;
-    cursor: default;
+.playlist-track(@active, @background-color) {
+  user-select: none;
+  cursor: default;
+
+  &.active {
+    color: @active;
+  }
+
+  td:first-child {
+    position: relative;
+    padding: 0;
+    vertical-align: unset;
+  }
+
+  .stripe {
+    position: absolute;
+    display: inline-block;
+    background-color: @background-color;
+    padding-left: 0;
+    padding-right: 0;
+    width: 10px;
+    height: 100%;
+  }
 }

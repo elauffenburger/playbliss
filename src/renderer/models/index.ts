@@ -1,6 +1,6 @@
 import { youtube_v3 } from "googleapis";
 
-export * from './user';
+export * from "./user";
 
 export enum MusicSource {
   Spotify = "spotify",
@@ -29,6 +29,7 @@ export type Track = SpotifyTrack | YouTubeTrack;
 export interface Playlist {
   id: string;
   name: string;
+  isVirtual: boolean;
   tracks: PlaylistTrack[];
 }
 
@@ -40,4 +41,19 @@ export interface PlaylistTrack {
 
 export interface StopPlayingActionPayload {
   ifNot: string;
+}
+
+export type CreatePlaylistArgs =
+  | CreateRealPlaylistArgs
+  | CreateVirtualPlaylistArgs;
+
+export interface CreateRealPlaylistArgs {
+  name: string;
+  tracks: Track[];
+  isVirtual?: false;
+}
+
+export interface CreateVirtualPlaylistArgs {
+  tracks: Track[];
+  isVirtual: true;
 }

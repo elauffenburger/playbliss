@@ -2,6 +2,8 @@ import { youtube_v3 } from "googleapis";
 
 export interface YouTubeService {
   getVideoByUrl(url: string): Promise<youtube_v3.Schema$Video>;
+  getVideos(args: youtube_v3.Params$Resource$Videos$List): Promise<youtube_v3.Schema$VideoListResponse>;
+  searchVideos(search: string): Promise<youtube_v3.Schema$SearchListResponse>;
 }
 
 export class DefaultYouTubeService implements YouTubeService {
@@ -26,6 +28,22 @@ export class DefaultYouTubeService implements YouTubeService {
     }
 
     return videos[0];
+  }
+
+  async getVideos(args: youtube_v3.Params$Resource$Videos$List) {
+    const response = await this.client.videos.list(args);
+
+    return response.data;
+  }
+
+  async searchVideos(
+    search: string
+  ): Promise<youtube_v3.Schema$SearchListResponse> {
+    const response = await this.client.search.list({
+      q: search
+    });
+
+    return response.data;
   }
 
   private getIdFromUrl(url: string): string | null {

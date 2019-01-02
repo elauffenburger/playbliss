@@ -5,19 +5,22 @@ import Home from "../pages/Home/Home.vue";
 import NewPlaylist from "../pages/NewPlaylist/NewPlaylist.vue";
 import Playlists from "../pages/Playlists/Playlists.vue";
 import ViewPlaylist from "../pages/Playlists/ViewPlaylist.vue";
+import SearchTracks from '../pages/SearchTracks/SearchTracks.vue';
 
 Vue.use(Router);
 
 export const ROUTES = {
   HOME: "/home",
-  VIEW_PLAYLIST: "/playlist",
+  SEARCH_TRACKS: "/tracks/search",
+  VIEW_PLAYLIST: "/playlist/:id",
   NEW_PLAYLIST: "/playlists/new",
   ALL_PLAYLISTS: "/playlists/all",
+  BUILD: {
+    viewPlaylist: (id: string) => `/playlist/${id}`
+  }
 };
 
 function parseComplexQuery(route: Route) {
-  console.log(route);
-
   let json = route.query["json"];
   json = (Array.isArray(json) && json.length ? json[0] : json) as string;
 
@@ -25,6 +28,8 @@ function parseComplexQuery(route: Route) {
     ...route.params,
     ...(json ? JSON.parse(json) : {})
   };
+
+  console.log("finished parsing query");
 
   return props;
 }
@@ -37,10 +42,19 @@ export default new Router({
       component: Home
     },
     {
+      path: ROUTES.SEARCH_TRACKS,
+      name: "search-tracks",
+      component: SearchTracks
+    },
+    {
       path: ROUTES.VIEW_PLAYLIST,
       name: "playlist",
       component: ViewPlaylist,
-      props: route => parseComplexQuery(route)
+      props: route => {
+        return {
+          playlistId: route.params["id"]
+        }
+      }
     },
     {
       path: ROUTES.NEW_PLAYLIST,
