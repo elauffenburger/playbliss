@@ -61,14 +61,18 @@ export class DefaultPlaylistService implements PlaylistService {
       return;
     }
 
-    const tracks = playlist.tracks;
+    // Create a copy of the playlist tracks to modify
+    const tracks = [...playlist.tracks];
     const trackIndex = tracks.findIndex(
       t => !!t.position && !!track.position && t.position == track.position
     );
 
-    const newTracks = playlist.tracks.splice(trackIndex, 1);
+    const newTracks = tracks.splice(trackIndex, 1);
 
-    return this.store.dispatch("playlists/setTracks", newTracks);
+    return this.store.dispatch("playlists/setTracks", {
+      playlistId: playlist.id,
+      tracks: newTracks
+    });
   }
 
   async addTrackToPlaylist(playlistId: string, track: Track) {

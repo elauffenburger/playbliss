@@ -17,7 +17,6 @@ export const ACTIONS = {
   CREATE_PLAYLIST: "createPlaylist",
   REMOVE_PLAYLIST: "removePlaylist",
   SET_TRACKS: "setTracks",
-  GET_PLAYLIST_BY_ID: "getPlaylistById",
   ADD_TRACK_TO_PLAYLIST: "addTrackToPlaylist"
 };
 
@@ -98,11 +97,11 @@ export function makePlaylistsModule(): Module<PlaylistsModuleState, AppState> {
           track: args.track
         });
       },
-      async [ACTIONS.GET_PLAYLIST_BY_ID](
+      [ACTIONS.SET_TRACKS](
         store,
-        id: string
-      ): Promise<Playlist | undefined> {
-        return store.state.playlists.find(p => p.id == id);
+        args: { playlistId: string; tracks: Track[] }
+      ) {
+        store.commit(MUTATIONS.SET_TRACKS, args);
       }
     }
   };

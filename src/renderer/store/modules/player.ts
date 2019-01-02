@@ -22,8 +22,6 @@ export const ACTIONS = {
   SET_PRIMARY_MUSIC_SOURCE: "setPrimaryMusicSource"
 };
 
-ACTIONS.foo
-
 export const GETTERS = {
   IS_PLAYING_TRACK: "isPlayingTrack"
 };
