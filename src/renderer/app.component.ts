@@ -3,7 +3,7 @@ import Component from "vue-class-component";
 
 import Player from "./components/player/Player/Player.vue";
 import Header from "./components/app/header/Header.vue";
-import Navigation from './components/app/navigation/Navigation.vue';
+import Navigation from "./components/app/navigation/Navigation.vue";
 import MusicSourceConfigDrawer from "./components/app/music-source-config-drawer/MusicSourceConfigDrawer.vue";
 
 @Component({
@@ -19,7 +19,7 @@ export default class App extends Vue {
   navigationDrawerOpen = false;
   musicSourceConfigDrawerOpen = false;
 
-  mounted() {}
+  mounted() { }
 
   onToolbarIconClicked() {
     this.navigationDrawerOpen = !this.navigationDrawerOpen;

@@ -24,13 +24,11 @@ import { Prop } from "vue-property-decorator";
 import { Playlist } from "../../models";
 
 import TracksTable from "../../components/tracks/TracksTable/TracksTable.vue";
-import AddPlaylistTrack from "../../components/playlist/AddPlaylistTrack.vue";
 
 @Component({
   name: "PlaylistTracks",
   components: {
-    TracksTable,
-    AddPlaylistTrack
+    TracksTable
   }
 })
 export default class PlaylistTracks extends Vue {

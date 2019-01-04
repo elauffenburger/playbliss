@@ -7,6 +7,8 @@ export enum MusicSource {
   YouTube = "youtube"
 }
 
+foo.bar
+
 export interface SpotifyTrack extends BasicTrack<SpotifyApi.TrackObjectFull> {
   artist: string;
   album: string;
@@ -56,4 +58,5 @@ export interface CreateRealPlaylistArgs {
 export interface CreateVirtualPlaylistArgs {
   tracks: Track[];
   isVirtual: true;
+  createNew?: boolean;
 }

@@ -32,6 +32,8 @@ export default class AddToPlaylistDialog extends Vue {
 
   onClickCancel() {
     this.$emit("cancel");
+
+    this.reset();
   }
 
   onClickOk() {
@@ -40,5 +42,11 @@ export default class AddToPlaylistDialog extends Vue {
     };
 
     this.$emit("ok", event);
+
+    this.reset();
+  }
+
+  reset() {
+    this.playlist = null;
   }
 }

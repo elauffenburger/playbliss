@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open">
+  <v-dialog v-model="open" max-width="370px">
     <v-card>
       <v-card-title>Add Track to Playlist</v-card-title>
 
@@ -21,8 +21,8 @@
       <v-card-actions>
         <v-spacer />
 
-        <v-btn @click="onClickCancel()">Cancel</v-btn>
-        <v-btn @click="onClickOk()">Ok</v-btn>
+        <v-btn flat @click="onClickCancel()">Cancel</v-btn>
+        <v-btn flat @click="onClickOk()">Ok</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -99,6 +99,8 @@
     "sass-loader": "^7.0.3",
     "spectron": "^3.8.0",
     "style-loader": "^0.21.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "ts-loader": "^5.3.1",
     "typescript": "^3.2.1",
     "url-loader": "^1.0.1",

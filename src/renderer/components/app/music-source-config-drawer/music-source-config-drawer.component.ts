@@ -104,6 +104,26 @@ export default class MusicSourceConfigDrawer extends Vue {
     return stringifyMusicSource(source);
   }
 
+  async cleanup() {
+    await this.flushVirtualPlaylists();
+  }
+
+  async flushVirtualPlaylists() {
+    const playlists = this.$services.playlists
+      .getPlaylists()
+      .filter(p => p.isVirtual);
+
+    for (let playlist of playlists) {
+      await this.$services.playlists.removePlaylist(playlist.id);
+    }
+
+    this.$services.ui.openSnackbar({
+      message: "Done!",
+      timeout: 3000,
+      parent: this.$el.parentElement as HTMLElement
+    });
+  }
+
   config: ConfigLookup = {
     general: {
       primaryMusicSourceDialogOpen: false,

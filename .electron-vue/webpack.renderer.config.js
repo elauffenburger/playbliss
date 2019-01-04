@@ -33,7 +33,8 @@ let rendererConfig = {
     renderer: path.join(__dirname, '../src/renderer/main.ts')
   },
   externals: [
-    ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
+    ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(
+      d))
   ],
   module: {
     rules: [{
@@ -53,7 +54,9 @@ let rendererConfig = {
       },
       {
         test: /\.sass$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader?indentedSyntax']
+        use: ['vue-style-loader', 'css-loader',
+          'sass-loader?indentedSyntax'
+        ]
       },
       {
         test: /\.less$/,
@@ -73,6 +76,10 @@ let rendererConfig = {
         exclude: /node_modules/
       },
       {
+        test: /\.styl$/,
+        use: ['css-loader', 'stylus-loader']
+      },
+      {
         test: /\.ts$/,
         exclude: /node_modules/,
         use: 'happypack/loader?id=ts'
@@ -90,7 +97,7 @@ let rendererConfig = {
             loaders: {
               sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
               scss: 'vue-style-loader!css-loader!sass-loader',
-              less: 'vue-style-loader!css-loader!less-loader'
+              less: 'vue-style-loader!css-loader!less-loader',
             }
           }
         }
@@ -157,7 +164,9 @@ let rendererConfig = {
         }
       }]
     }),
-    new ForkTsChecker({ checkSyntacticErrors: true })
+    new ForkTsChecker({
+      checkSyntacticErrors: true
+    })
   ],
   output: {
     filename: '[name].js',
@@ -168,7 +177,9 @@ let rendererConfig = {
     alias: {
       '@': path.join(__dirname, '../src/renderer')
     },
-    extensions: ['.js', '.ts', '.tsx', '.vue', '.json', '.css', '.node']
+    extensions: ['.js', '.ts', '.tsx', '.vue', '.json', '.css', '.node',
+      '.styl'
+    ]
   },
   target: 'electron-renderer'
 }

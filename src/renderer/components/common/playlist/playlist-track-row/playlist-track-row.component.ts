@@ -4,15 +4,10 @@ import { Prop } from "vue-property-decorator";
 
 import { PlaylistTrack, Playlist } from "../../../../models";
 import { AppState } from "../../../../store";
+import PlaylistTrackOptions from "../PlaylistTrackOptions/playlist-track-options.component";
 
 export default class PlaylistTrackRow extends Vue {
-  contextMenuVisible = false;
-  contextMenuPosition = {
-    x: 0,
-    y: 0
-  };
-
-  isAddToPlaylistDialogOpen = false;
+  options: PlaylistTrackOptions | null = null;
 
   @Prop({ required: true })
   track!: PlaylistTrack;
@@ -32,50 +27,21 @@ export default class PlaylistTrackRow extends Vue {
     return this.$services.player.isActiveTrack(this.track);
   }
 
+  mounted() {
+    this.options = this.$refs["options"] as PlaylistTrackOptions;
+  }
+
   onClickPlayPause() {
     this.$services.player.toggleTrackPlay(this.track);
   }
 
-  showContextMenu(e: MouseEvent) {
-    e.preventDefault();
+  showOptions(e: MouseEvent) {
+    if (!this.options) {
+      console.error("No PlaylistTrackOptions ref found in template");
 
-    const isOpen = this.contextMenuVisible;
-    this.contextMenuVisible = false;
-
-    if (isOpen) {
       return;
     }
 
-    this.contextMenuPosition.x = e.clientX;
-    this.contextMenuPosition.y = e.clientY;
-
-    this.$nextTick(() => {
-      this.contextMenuVisible = true;
-    });
-  }
-
-  onClickAddToPlaylist() {
-    this.setAddToPlaylistDialogVisibility(true);
-  }
-
-  onClickAddToPlaylistCancel() {
-    this.setAddToPlaylistDialogVisibility(false);
-  }
-
-  onClickAddToPlaylistOk(playlist: Playlist | null) {
-    if (!playlist) {
-      return;
-    }
-
-    this.$services.playlists.addTrackToPlaylist(playlist.id, this.track.track);
-    this.setAddToPlaylistDialogVisibility(false);
-  }
-
-  setAddToPlaylistDialogVisibility(visible: boolean) {
-    this.isAddToPlaylistDialogOpen = visible;
-  }
-
-  onClickRemoveFromPlaylist() {
-    this.$services.playlists.removeTrack(this.track);
+    this.options.show(e);
   }
 }

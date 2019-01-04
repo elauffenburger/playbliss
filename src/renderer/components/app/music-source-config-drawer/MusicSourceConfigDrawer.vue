@@ -48,10 +48,23 @@
                       flat
                       @click="onChangePrimaryMusicSource(config.general.pendingPrimaryMusicSource)"
                     >Ok</v-btn>
-                    <v-btn flat @click="onClickClosePrimaryMusicSourceDialog()">Cancel</v-btn>
+                    <v-btn
+                      flat
+                      @click="onClickClosePrimaryMusicSourceDialog()"
+                    >Cancel</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
+            </v-list-tile-content>
+          </v-list-tile>
+
+          <v-list-tile @click="cleanup()">
+            <v-list-tile-action>
+              <v-icon>delete_sweep</v-icon>
+            </v-list-tile-action>
+
+            <v-list-tile-content>
+              <v-list-tile-title>Clean Up</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>

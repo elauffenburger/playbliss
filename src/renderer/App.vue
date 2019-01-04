@@ -1,13 +1,14 @@
 <template>
   <div id="app">
     <v-app>
-
       <div>
         <Header
           @settingsClicked="onSettingsClicked()"
           @toolbarIconClicked="onToolbarIconClicked()"
         />
         <MusicSourceConfigDrawer v-model="musicSourceConfigDrawerOpen" />
+
+        <v-card id="app-card"></v-card>
       </div>
 
       <div class="content">

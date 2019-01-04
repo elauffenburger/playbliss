@@ -197,6 +197,19 @@ export default class SearchTracks extends Vue {
     const youtubeVideo: youtube_v3.Schema$Video = await this.$services.youtube.getVideoByUrl(
       url
     );
+
+    const track = mapYouTubeVideo(youtubeVideo);
+    if (!track) {
+      this.tracks = [];
+      return;
+    }
+
+    const playlist = await this.$services.playlists.createPlaylist({
+      isVirtual: true,
+      tracks: [track]
+    });
+
+    this.tracks = playlist.tracks;
   }
 
   getFirstEntryMethodForSource(source: Source): EntryMethod {
