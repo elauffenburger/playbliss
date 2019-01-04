@@ -6,7 +6,7 @@
           @settingsClicked="onSettingsClicked()"
           @toolbarIconClicked="onToolbarIconClicked()"
         />
-        <MusicSourceConfigDrawer v-model="musicSourceConfigDrawerOpen" />
+        <ConfigDrawer v-model="musicSourceConfigDrawerOpen" />
 
         <v-card id="app-card"></v-card>
       </div>

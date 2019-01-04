@@ -113,7 +113,7 @@
   </v-navigation-drawer>
 </template>
 
-<script src="./music-source-config-drawer.component.ts" lang="ts"></script>
+<script src="./config-drawer.component.ts" lang="ts"></script>
 
 <style lang="less">
 .spotify-status {

@@ -31,7 +31,7 @@ interface ConfigLookup {
 }
 
 @Component({
-  name: "MusicSourceConfigDrawer",
+  name: "ConfigDrawer",
   components: {
     SpotifyLogin
   }
