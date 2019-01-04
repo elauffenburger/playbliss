@@ -7,8 +7,6 @@ export enum MusicSource {
   YouTube = "youtube"
 }
 
-foo.bar
-
 export interface SpotifyTrack extends BasicTrack<SpotifyApi.TrackObjectFull> {
   artist: string;
   album: string;
