@@ -19,7 +19,9 @@ export interface SpotifyService {
   getPlaylists(): Promise<SpotifyApi.PlaylistObjectSimplified[]>;
   getUser(): Promise<SpotifyApi.CurrentUsersProfileResponse>;
 
-  getPlaylistTracks(playlist: SpotifyApi.PlaylistObjectSimplified): Promise<SpotifyApi.PlaylistTrackObject[]>;
+  getPlaylistTracks(
+    playlist: SpotifyApi.PlaylistObjectSimplified
+  ): Promise<SpotifyApi.PlaylistTrackObject[]>;
   searchTrack(search: string): Promise<SpotifyApi.TrackObjectFull[]>;
 }
 
@@ -37,7 +39,10 @@ export interface DefaultSpotifyServiceOptions {
 export class DefaultSpotifyService implements SpotifyService {
   private client: SpotifyWebApi;
 
-  constructor(private store: Store<AppState>, private options: DefaultSpotifyServiceOptions) {
+  constructor(
+    private store: Store<AppState>,
+    private options: DefaultSpotifyServiceOptions
+  ) {
     this.client = options.client;
 
     this.listenToStore();
@@ -77,7 +82,9 @@ export class DefaultSpotifyService implements SpotifyService {
     const user = state.user;
     if (!user) {
       // TODO: what do?
-      throw new Error("Attempted to get playlists for user without being logged in");
+      throw new Error(
+        "Attempted to get playlists for user without being logged in"
+      );
     }
 
     const response = await this.client.getUserPlaylists(user.id);
@@ -89,7 +96,12 @@ export class DefaultSpotifyService implements SpotifyService {
   async getOAuthAuthorizationUri(): Promise<string> {
     const oauth = this.options.oauth;
 
-    return oauth.service.getAuthorizationUri(oauth.baseUri, oauth.clientId, oauth.scopes, oauth.redirectUri);
+    return oauth.service.getAuthorizationUri(
+      oauth.baseUri,
+      oauth.clientId,
+      oauth.scopes,
+      oauth.redirectUri
+    );
   }
 
   async getOAuthRedirectUri(): Promise<string> {
@@ -161,7 +173,9 @@ export class DefaultSpotifyService implements SpotifyService {
     return this.store.dispatch("user/spotify/setPlaylists", playlists);
   }
 
-  async getPlaylistTracks(playlist: SpotifyApi.PlaylistObjectSimplified): Promise<SpotifyApi.PlaylistTrackObject[]> {
+  async getPlaylistTracks(
+    playlist: SpotifyApi.PlaylistObjectSimplified
+  ): Promise<SpotifyApi.PlaylistTrackObject[]> {
     const response = await this.client.getPlaylistTracks(playlist.id);
     const tracks = response.body;
 
@@ -169,7 +183,12 @@ export class DefaultSpotifyService implements SpotifyService {
   }
 
   async searchTrack(search: string): Promise<SpotifyApi.TrackObjectFull[]> {
-    const response = await this.client.searchTracks(search);
+    const wildcardSearch = search
+      .split(" ")
+      .map(token => `*${token}*`)
+      .join(" ");
+
+    const response = await this.client.searchTracks(wildcardSearch);
 
     return response.body.tracks.items;
   }

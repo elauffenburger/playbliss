@@ -1,19 +1,29 @@
 import Vue from "vue";
 import { Store } from "vuex";
-import { Prop } from "vue-property-decorator";
+import { Prop, Component } from "vue-property-decorator";
 
 import { PlaylistTrack, Playlist } from "../../../../models";
 import { AppState } from "../../../../store";
-import PlaylistTrackOptions from "../PlaylistTrackOptions/playlist-track-options.component";
+import PlaylistTrackOptions from "../PlaylistTrackOptions/PlaylistTrackOptions.vue";
+import PlaylistTrackOptionsComponent from "../PlaylistTrackOptions/playlist-track-options.component";
 
+@Component({
+  name: "PlaylistTrackRow",
+  components: {
+    PlaylistTrackOptions
+  }
+})
 export default class PlaylistTrackRow extends Vue {
-  options: PlaylistTrackOptions | null = null;
+  options: PlaylistTrackOptionsComponent | null = null;
 
   @Prop({ required: true })
   track!: PlaylistTrack;
 
-  @Prop({ default: true })
+  @Prop({ default: true, type: Boolean })
   removable!: boolean;
+
+  @Prop({ default: '#f5f5f5', type: String })
+  stripeColor!: string;
 
   get store(): Store<AppState> {
     return this.$store;
@@ -28,11 +38,15 @@ export default class PlaylistTrackRow extends Vue {
   }
 
   mounted() {
-    this.options = this.$refs["options"] as PlaylistTrackOptions;
+    this.options = this.$refs["options"] as PlaylistTrackOptionsComponent;
   }
 
   onClickPlayPause() {
     this.$services.player.toggleTrackPlay(this.track);
+  }
+
+  onClickSkipToEnd(event: any) {
+    this.$emit("skipToEnd", event);
   }
 
   showOptions(e: MouseEvent) {

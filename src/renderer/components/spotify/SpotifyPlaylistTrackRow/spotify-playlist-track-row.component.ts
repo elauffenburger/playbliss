@@ -1,23 +1,26 @@
-import Component from "vue-class-component";
-import { SpotifyTrack, MusicSource } from "../../../../renderer/models";
+import {
+  SpotifyTrack,
+  MusicSource,
+  Track,
+  PlaylistTrack
+} from "../../../../renderer/models";
 import { setTimeout } from "timers";
 
-import PlaylistTrackRow from "../../common/playlist/playlist-track-row/playlist-track-row.component";
-
-import AddToPlaylistDialog from "../../common/playlist/AddToPlaylistDialog/AddToPlaylistDialog.vue";
-import PlaylistTrackOptions from "../../common/playlist/PlaylistTrackOptions/PlaylistTrackOptions.vue";
+import PlaylistTrackRow from "../../common/playlist/playlist-track-row/PlaylistTrackRow.vue";
+import { Prop, Component, Vue } from "vue-property-decorator";
 
 @Component({
   name: "SpotifyPlaylistTrack",
   components: {
-    AddToPlaylistDialog,
-    PlaylistTrackOptions
+    PlaylistTrackRow
   }
 })
-export default class SpotifyPlaylistTrack extends PlaylistTrackRow {
-  mounted() {
-    super.mounted();
-  }
+export default class SpotifyPlaylistTrack extends Vue {
+  @Prop({ required: true })
+  track!: PlaylistTrack;
+
+  @Prop({ type: Boolean })
+  removable!: boolean;
 
   async onClickSkipToEnd() {
     if (!this.track || this.track.track.source != MusicSource.Spotify) {

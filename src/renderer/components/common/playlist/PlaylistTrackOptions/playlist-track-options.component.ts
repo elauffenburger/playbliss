@@ -68,4 +68,8 @@ export default class PlaylistTrackOptions extends Vue {
   onClickRemoveFromPlaylist() {
     this.$services.playlists.removeTrack(this.track);
   }
+
+  onClickSkipToEnd(event: any) {
+    this.$emit("skipToEnd", event);
+  }
 }

@@ -28,6 +28,7 @@ export class YouTubePlayerPoller {
   async syncPlaybackStatus() {
     const track = await this.player.getCurrentTrack();
     if (!track || track.track.source != MusicSource.YouTube) {
+      this.player.pauseTrack();
       return;
     }
 

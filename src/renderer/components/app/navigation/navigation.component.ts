@@ -50,7 +50,7 @@ export default class Navigation extends Vue {
   }
 
   navigateTo(path: string, props?: any) {
-    console.log("navigating to playlist:", path);
+    console.log("navigating to page:", path);
 
     this.$router.push({
       path,

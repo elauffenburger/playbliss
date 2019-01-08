@@ -15,11 +15,13 @@
     >
       <SpotifyPlaylistTrackRow
         v-if="props.item.track.source == 'spotify'"
+        removable
         :track="props.item"
       />
 
       <YouTubePlaylistTrackRow
         v-if="props.item.track.source == 'youtube'"
+        removable
         :track="props.item"
       />
     </template>

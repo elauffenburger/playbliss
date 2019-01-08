@@ -4,7 +4,7 @@ import { AppState } from "../../../store";
 import { YouTubeTrack } from "../../../models";
 import Component from "vue-class-component";
 import YouTube from "youtube-player";
-import { YouTubePlayerPoller } from './helpers/youtube-poller';
+import { YouTubePlayerPoller } from "./helpers/youtube-poller";
 
 @Component({
   name: "YouTubePlayer"

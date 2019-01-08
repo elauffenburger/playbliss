@@ -110,15 +110,17 @@ export default class MusicSourceConfigDrawer extends Vue {
 
   async flushVirtualPlaylists() {
     const playlists = this.$services.playlists
-      .getPlaylists()
+      .getPlaylists(true)
       .filter(p => p.isVirtual);
 
     for (let playlist of playlists) {
       await this.$services.playlists.removePlaylist(playlist.id);
     }
 
+    console.log(`removed ${playlists.length} playlists`);
+
     this.$services.ui.openSnackbar({
-      message: "Done!",
+      message: `Done!`,
       timeout: 3000,
       parent: this.$el.parentElement as HTMLElement
     });

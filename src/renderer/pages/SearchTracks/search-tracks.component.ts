@@ -75,6 +75,7 @@ export default class SearchTracks extends Vue {
   entryMethod: EntryMethod = this.getFirstEntryMethodForSource(
     SOURCES.SPOTIFY.value
   );
+
   manualEntry = "";
 
   debouncedSearch = debouncer();
@@ -89,6 +90,8 @@ export default class SearchTracks extends Vue {
   onSourceChanged(source: Source) {
     this.tracks = [];
     this.entryMethod = this.getFirstEntryMethodForSource(source);
+
+    this.onSearchChange(this.trackSearch);
   }
 
   @Watch("manualEntry")
@@ -121,23 +124,29 @@ export default class SearchTracks extends Vue {
   }
 
   async runSearch(search: string): Promise<any> {
-    this.loading = true;
+    try {
+      this.loading = true;
 
-    if (!search) {
-      this.tracks = [];
-      return;
+      if (!search) {
+        console.error("no search provided to runSearch");
+
+        this.tracks = [];
+        return;
+      }
+
+      this.$services.ui.setSearch(search);
+
+      switch (this.source.source) {
+        case MusicSource.Spotify:
+          return await this.runSpotifySearch(search);
+        case MusicSource.YouTube:
+          return await this.runYouTubeSearch(search);
+        default:
+          console.error("no source provided for runSearch");
+      }
+    } finally {
+      this.loading = false;
     }
-
-    this.$services.ui.setSearch(search);
-
-    switch (this.source.source) {
-      case MusicSource.Spotify:
-        return await this.runSpotifySearch(search);
-      case MusicSource.YouTube:
-        return await this.runYouTubeSearch(search);
-    }
-
-    this.loading = false;
   }
 
   async runSpotifySearch(search: string) {
@@ -170,9 +179,10 @@ export default class SearchTracks extends Vue {
   async searchYouTubeVideos(
     search: string
   ): Promise<youtube_v3.Schema$Video[]> {
-    const searchVideosResponse = await this.$services.youtube.searchVideos(
-      search
-    );
+    const searchVideosResponse = await this.$services.youtube.searchVideos({
+      search,
+      maxResults: 10
+    });
 
     const videoIds = (searchVideosResponse.items || [])
       .map(v => v.id && v.id.videoId)
