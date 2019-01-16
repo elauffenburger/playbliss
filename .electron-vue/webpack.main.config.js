@@ -3,10 +3,13 @@
 process.env.BABEL_ENV = 'main'
 
 const path = require('path')
-const { dependencies } = require('../package.json')
+const {
+  dependencies
+} = require('../package.json')
 const webpack = require('webpack')
 
 const BabiliWebpackPlugin = require('babili-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 let mainConfig = {
   entry: {
@@ -16,8 +19,7 @@ let mainConfig = {
     ...Object.keys(dependencies || {})
   ],
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.(js)$/,
         enforce: 'pre',
         exclude: /node_modules/,
@@ -60,7 +62,12 @@ let mainConfig = {
     path: path.join(__dirname, '../dist/electron')
   },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    new CopyWebpackPlugin([{
+      from: path.join(__dirname, "../assets/**"),
+      to: path.join(__dirname, "../dist/electron"),
+
+    }])
   ],
   resolve: {
     extensions: ['.js', '.ts', '.json', '.node']

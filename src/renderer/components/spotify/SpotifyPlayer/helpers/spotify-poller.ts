@@ -67,6 +67,8 @@ export class SpotifyPoller {
   }
 
   startPolling() {
+    this.options.initSdk();
+
     if (this.options.singlePoller && SpotifyPoller.poller) {
       clearInterval(SpotifyPoller.poller);
     }

@@ -26,7 +26,9 @@ export default class SpotifyPlayer extends Vue {
           singlePoller: true,
           enabled: false,
           initSdk: () => {
-            initSpotifyPlaybackSdk(() => this.store.state.user.spotify.token);
+            initSpotifyPlaybackSdk(cb =>
+              cb(this.store.state.user.spotify.token)
+            );
           }
         }
       );

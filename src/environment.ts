@@ -4,8 +4,12 @@ export default {
     oauth: {
       baseUri: "https://accounts.spotify.com/authorize",
       clientId: process.env.ELECTRON_WEBPACK_APP_SPOTIFY_CLIENT_ID as string,
-      redirectUri: process.env.ELECTRON_WEBPACK_APP_SPOTIFY_REDIRECT_URI as string,
+      redirectUri: process.env
+        .ELECTRON_WEBPACK_APP_SPOTIFY_REDIRECT_URI as string,
       scopes: [
+        "streaming",
+        "user-read-birthdate",
+        "user-read-email",
         "playlist-read-private",
         "user-read-private",
         "user-modify-playback-state",

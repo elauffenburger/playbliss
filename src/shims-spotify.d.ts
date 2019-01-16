@@ -6,6 +6,7 @@ declare module Spotify {
   type GetOAuthTokenCallback = (cb: (token: string) => void) => void;
 
   interface PlayerConstructorOptions {
+    name: string;
     getOAuthToken: GetOAuthTokenCallback;
   }
 
@@ -21,7 +22,7 @@ declare module Spotify {
   class Player {
     constructor(options: PlayerConstructorOptions);
 
-    addListener<T>(event: PlayerListenerEvent, cb: (args: T) => void): void;
+    addListener<T>(event: PlayerListenerEvent, cb: (args: T | any) => void): void;
     connect(): void;
   }
 }
