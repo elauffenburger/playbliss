@@ -49,6 +49,8 @@ export class SpotifyPoller {
     private store: SubscribeActionStore<AppState>,
     private options: {
       singlePoller: boolean;
+      enabled: boolean;
+      initSdk: () => void;
     }
   ) {
     store.subscribeAction(action => {
@@ -69,11 +71,13 @@ export class SpotifyPoller {
       clearInterval(SpotifyPoller.poller);
     }
 
-    SpotifyPoller.poller = setInterval(async () => {
-      await this.checkLoggedInState();
+    if (this.options.enabled) {
+      SpotifyPoller.poller = setInterval(async () => {
+        await this.checkLoggedInState();
 
-      await this.checkPlaybackState();
-    }, STATE_POLL_INTERVAL_MS);
+        await this.checkPlaybackState();
+      }, STATE_POLL_INTERVAL_MS);
+    }
   }
 
   async checkLoggedInState() {

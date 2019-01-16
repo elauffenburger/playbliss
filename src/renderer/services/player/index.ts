@@ -32,9 +32,9 @@ export interface PlayerService {
   source?: MusicSource;
 
   playTrack(track: PlaylistTrack): Promise<any>;
+  pauseTrack(): Promise<any>;
   resumeTrack(): Promise<any>;
   seek(progressMs: number): Promise<any>;
-  pauseTrack(): Promise<any>;
 }
 
 export class DefaultMasterPlayerService implements MasterPlayerService {
