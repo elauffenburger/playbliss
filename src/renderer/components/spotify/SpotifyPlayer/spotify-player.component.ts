@@ -23,7 +23,7 @@ export default class SpotifyPlayer extends Vue {
         {
           singlePoller: true,
           enabled: true,
-          enableLogging: false
+          enableLogging: true
         }
       );
 

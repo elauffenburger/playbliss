@@ -111,7 +111,10 @@ export default class Player extends Vue {
       return;
     }
 
-    this.queue = this.cloneTracks(this.currentPlaylist.tracks, this.track.position - 1);
+    this.queue = this.cloneTracks(
+      this.currentPlaylist.tracks,
+      this.track.position - 1
+    );
 
     this.playCurrentTrack();
   }
@@ -137,8 +140,11 @@ export default class Player extends Vue {
   }
 
   shouldRestartTrackInsteadOfPlayingPrevious() {
-    const progressAboveSkipThreshold = (this.progressPercentage || 0) > PLAY_PREVIOUS_TRACK_THRESHOLD_PERCENTAGE;
-    const noPreviousTrack = (this.track && this.track.position != null && this.track.position == 0) || false;
+    const progressAboveSkipThreshold =
+      (this.progressPercentage || 0) > PLAY_PREVIOUS_TRACK_THRESHOLD_PERCENTAGE;
+    const noPreviousTrack =
+      (this.track && this.track.position != null && this.track.position == 0) ||
+      false;
 
     return progressAboveSkipThreshold || noPreviousTrack;
   }
@@ -163,9 +169,12 @@ export default class Player extends Vue {
 
   onPlayTrack(track: PlaylistTrack) {
     if (track.playlistId) {
-      const playlist = this.$services.playlists.getPlaylistById(track.playlistId);
+      const playlist = this.$services.playlists.getPlaylistById(
+        track.playlistId
+      );
 
-      this.queue = (playlist && this.cloneTracks(playlist.tracks, track.position)) || [];
+      this.queue =
+        (playlist && this.cloneTracks(playlist.tracks, track.position)) || [];
     }
   }
 
@@ -179,5 +188,28 @@ export default class Player extends Vue {
 
   private cloneTracks(tracks: PlaylistTrack[], from: number = 0) {
     return tracks.slice(from);
+  }
+
+  onClickProgressBar(event: MouseEvent) {
+    console.log(event);
+
+    if (!this.track) {
+      return;
+    }
+
+    const progressBar = this.$refs["progressBar"] as Vue | null;
+    if (!progressBar) {
+      return;
+    }
+
+    const x = event.clientX;
+    const progressBarBounds = progressBar.$el.getBoundingClientRect();
+
+    const clickPositionProgressPercentage =
+      (x - progressBarBounds.left) / progressBarBounds.width;
+    const clickPositionProgressMs =
+      this.track.track.durationMs * clickPositionProgressPercentage;
+
+    this.$services.player.seek(clickPositionProgressMs);
   }
 }

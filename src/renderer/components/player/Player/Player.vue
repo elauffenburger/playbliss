@@ -29,7 +29,7 @@
 
       <v-flex>
         <v-layout>
-          <v-progress-linear v-model="progressPercentage"></v-progress-linear>
+          <v-progress-linear ref="progressBar" v-model="progressPercentage" @click="onClickProgressBar($event)" />
         </v-layout>
 
         <v-layout class="controls-container">

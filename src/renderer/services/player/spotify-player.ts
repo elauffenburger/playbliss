@@ -7,6 +7,7 @@ import { Track, MusicSource, PlaylistTrack } from "../../models";
 import { Store } from "vuex";
 import { AppState } from "src/renderer/store";
 import { Subject } from 'rxjs';
+import { isContext } from 'vm';
 
 export interface SpotifyPlayerService extends PlayerService {
   getCurrentTrack(): Promise<CurrentPlayback>;
@@ -32,6 +33,7 @@ export class DefaultSpotifyPlayerService implements SpotifyPlayerService {
 
   source = MusicSource.Spotify;
   trackEnded$ = new Subject<TrackEndedEventArgs>();
+  seek$ = new Subject<number>();
 
   playTrack(track: PlaylistTrack): Promise<any> {
     this.log("playing track");
@@ -62,6 +64,8 @@ export class DefaultSpotifyPlayerService implements SpotifyPlayerService {
   async seek(positionMs: number): Promise<any> {
     this.log("seeking track");
 
+    this.seek$.next();
+
     if ((await this.isPlayingLocally()) && this.spotifyWebPlayer) {
       return await this.spotifyWebPlayer.seek(positionMs);
     }
@@ -70,7 +74,7 @@ export class DefaultSpotifyPlayerService implements SpotifyPlayerService {
   }
 
   playSpotifyTrack(options: PlayOptions) {
-    this.log("playing spotify track");
+    this.log("playing spotify track: %O", options);
 
     return this.client.play(options);
   }
@@ -130,7 +134,7 @@ export class DefaultSpotifyPlayerService implements SpotifyPlayerService {
       player.addListener<Spotify.WebPlaybackState>("player_state_changed", state => {
         console.log(state);
 
-        if(state.position === 0 && !state.paused) {
+        if(!state.context.uri) {
           this.trackEnded$.next();
         }
       });
@@ -178,6 +182,6 @@ export class DefaultSpotifyPlayerService implements SpotifyPlayerService {
   }
 
   private log(...args: any[]) {
-    console.log(args);
+    console.log("[SpotifyPlayer] ", ...args);
   }
 }

@@ -31,6 +31,7 @@ export interface MasterPlayerService extends PlayerService {
 export interface PlayerService {
   source?: MusicSource;
   trackEnded$?: Observable<TrackEndedEventArgs>;
+  seek$?: Subject<number>;
 
   playTrack(track: PlaylistTrack): Promise<any>;
   pauseTrack(): Promise<any>;

@@ -103,11 +103,11 @@ export class SpotifyPoller {
     }
 
     // Get the current playback state
-    const state = await this.getPlaybackState();
-    this.addPendingState(state);
+    const spotifyPlaybackState = await this.getPlaybackState();
+    this.addPendingState(spotifyPlaybackState);
 
     // If we're not playing anything, set track & progress to null and bail
-    if (!state.spotifyTrack || !state.track) {
+    if (!spotifyPlaybackState.spotifyTrack || !spotifyPlaybackState.track) {
       this.player.setTrack(null);
       this.player.setTrackProgress(null);
 
@@ -116,13 +116,18 @@ export class SpotifyPoller {
 
     // Always update the progress since that's unlikely to thrash
     const { trackProgressMs } = this.updateTrackProgress(
-      state.spotifyTrack,
-      state.trackContext
+      spotifyPlaybackState.spotifyTrack,
+      spotifyPlaybackState.trackContext
     );
 
     const localState = await this.spotifyPlayer.getLocalPlaybackState();
     if (!!localState) {
       this.log("Determined we're playing locally; exiting poll early");
+
+    this.updateCurrentTrack(
+      { track: playerState.track, isPlaying: playerState.isPlaying },
+      { track: spotifyPlaybackState.track, isPlaying: spotifyPlaybackState.isPlaying }
+    );
 
       return;
     }
@@ -139,19 +144,10 @@ export class SpotifyPoller {
     const playerWasPlaying = playerState.isPlaying;
     const originalTrack = playerState.track;
 
-    this.log("originalTrack: ", originalTrack);
-    this.log("state.track: ", state.track);
-
-    if (playerState.isPlaying != state.isPlaying) {
-      this.player.setIsPlaying(state.isPlaying);
-    }
-
-    if (
-      !originalTrack ||
-      (originalTrack && originalTrack.track.id != state.track.id)
-    ) {
-      this.player.setTrack({ track: state.track });
-    }
+    this.updateCurrentTrack(
+      { track: originalTrack, isPlaying: playerWasPlaying },
+      { track: spotifyPlaybackState.track, isPlaying: spotifyPlaybackState.isPlaying }
+    );
 
     // If the player was originally playing and the track being played is the current track
     // and that that track is within the error threshold, mark the song as ended
@@ -161,11 +157,32 @@ export class SpotifyPoller {
       this.trackHasEnded(
         playerWasPlaying,
         originalTrack,
-        state.track,
+        spotifyPlaybackState.track,
         trackProgressMs
       )
     ) {
-      this.player.notifyTrackEnded({ track: state.track });
+      this.player.notifyTrackEnded({ track: spotifyPlaybackState.track });
+    }
+  }
+
+  private updateCurrentTrack(
+    playerState: { isPlaying: boolean; track: PlaylistTrack | null },
+    spotifyPlaybackState: { isPlaying: boolean; track: SpotifyTrack }
+  ) {
+    const originalTrack = playerState.track;
+
+    this.log("originalTrack: ", originalTrack);
+    this.log("spotifyPlaybackState.track: ", spotifyPlaybackState.track);
+
+    if (playerState.isPlaying != spotifyPlaybackState.isPlaying) {
+      this.player.setIsPlaying(spotifyPlaybackState.isPlaying);
+    }
+
+    if (
+      !originalTrack ||
+      (originalTrack && originalTrack.track.id != spotifyPlaybackState.track.id)
+    ) {
+      this.player.setTrack({ track: spotifyPlaybackState.track });
     }
   }
 
