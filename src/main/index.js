@@ -3,6 +3,8 @@ import {
   BrowserWindow
 } from 'electron' // eslint-disable-line
 
+const path = require('path');
+
 const WIDEVINE_VERSION = '4.10.1196.0';
 
 /**
@@ -10,7 +12,7 @@ const WIDEVINE_VERSION = '4.10.1196.0';
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g,
+  global.__static = path.join(__dirname, '/static').replace(/\\/g,
     '\\\\') // eslint-disable-line
 }
 
@@ -21,8 +23,6 @@ let mainWindow;
 const winURL = process.env.NODE_ENV === 'development' ?
   'http://localhost:9080' :
   `file://${__dirname}/index.html`;
-
-console.log(winURL)
 
 function createWindow() {
   /**
@@ -80,10 +80,10 @@ app.on('ready', () => {
 
 function addWidevine(app) {
   // TODO: make this configurable-by-platform
-  app.commandLine.appendSwitch('widevine-cdm-path',
-    `${__dirname}/assets/widevine/win64/widevinecdm.dll`);
-  app.commandLine.appendSwitch('widevine-cdm-version', WIDEVINE_VERSION);
 
-  // app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
-  // app.commandLine.appendSwitch('allow-insecure-localhost', 'true');
+  const widevinePath = path.join(__static, '/assets/widevine/win64');
+  console.log(widevinePath);
+
+  app.commandLine.appendSwitch('widevine-cdm-path', widevinePath);
+  app.commandLine.appendSwitch('widevine-cdm-version', WIDEVINE_VERSION);
 }
