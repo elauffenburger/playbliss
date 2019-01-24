@@ -14,8 +14,6 @@ import { PlayerState } from "src/renderer/store/modules/player";
 import { CurrentPlayback } from "spotify-web-api-node";
 import { SpotifyService } from "src/renderer/services/spotify";
 
-const LOGGING_ENABLED = false;
-
 // How often we should attempt to poll Spotify
 const STATE_POLL_INTERVAL_MS = 1000;
 
@@ -50,7 +48,7 @@ export class SpotifyPoller {
     private options: {
       singlePoller: boolean;
       enabled: boolean;
-      initSdk: () => void;
+      enableLogging: boolean;
     }
   ) {
     store.subscribeAction(action => {
@@ -67,8 +65,6 @@ export class SpotifyPoller {
   }
 
   startPolling() {
-    this.options.initSdk();
-
     if (this.options.singlePoller && SpotifyPoller.poller) {
       clearInterval(SpotifyPoller.poller);
     }
@@ -100,7 +96,7 @@ export class SpotifyPoller {
   async checkPlaybackState() {
     const playerState = this.store.state.player;
 
-    if (!this.shouldPoll(playerState)) {
+    if (!(await this.shouldPoll(playerState))) {
       this.log("Determined we shouldn't poll");
 
       return;
@@ -123,6 +119,13 @@ export class SpotifyPoller {
       state.spotifyTrack,
       state.trackContext
     );
+
+    const localState = await this.spotifyPlayer.getLocalPlaybackState();
+    if (!!localState) {
+      this.log("Determined we're playing locally; exiting poll early");
+
+      return;
+    }
 
     // If there's a pending state (as in, the one we just looked at)
     // and it doesn't match what we have right now, wait for one more tick
@@ -166,7 +169,7 @@ export class SpotifyPoller {
     }
   }
 
-  private shouldPoll(playerState: PlayerState): boolean {
+  private async shouldPoll(playerState: PlayerState): Promise<boolean> {
     // If the user isn't logged in, don't bother
     if (!this.store.state.user.spotify.loggedIn) {
       this.log("Shouldn't poll -- user not logged in");
@@ -292,7 +295,7 @@ export class SpotifyPoller {
   }
 
   log(...args: any[]): void {
-    if (!LOGGING_ENABLED) {
+    if (!this.options.enableLogging) {
       return;
     }
 

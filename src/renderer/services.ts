@@ -1,13 +1,16 @@
-import { DefaultUserService, UserService } from "./services/user";
+import Vue from "vue";
 import { Store } from "vuex";
+import { youtube_v3 } from "googleapis";
+
 import { AppState } from "./store";
+
+import { DefaultUserService, UserService } from "./services/user";
 import {
   DefaultSpotifyService,
   DefaultSpotifyServiceOptions,
   SpotifyService
 } from "./services/spotify";
 import { DefaultYouTubeService, YouTubeService } from "./services/youtube";
-import { youtube_v3 } from "googleapis";
 import {
   DefaultMasterPlayerService,
   MasterPlayerService
@@ -20,9 +23,10 @@ import {
   DefaultYouTubePlayerService,
   YouTubePlayerService
 } from "./services/player/youtube-player";
-import Vue from "vue";
 import { PlaylistService, DefaultPlaylistService } from "./services/playlist";
 import { UiService, DefaultUiService } from "./services/ui";
+
+import { initSpotifyPlaybackSdk } from "./spotify";
 
 Vue.use({
   install: vue => {
@@ -61,7 +65,15 @@ export interface Services {
 export default function makeServices(options: InjectionOptions): Services {
   const store = options.store;
 
-  const spotifyPlayer = new DefaultSpotifyPlayerService(options.spotify.client);
+  const spotifyPlayer = new DefaultSpotifyPlayerService(
+    options.spotify.client,
+    store,
+    {
+      initSdk: readyHook => {
+        initSpotifyPlaybackSdk(readyHook);
+      }
+    }
+  );
   const youtubePlayer = new DefaultYouTubePlayerService();
 
   return {

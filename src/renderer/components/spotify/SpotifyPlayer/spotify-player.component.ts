@@ -5,8 +5,6 @@ import { AppState } from "../../../store";
 import { Component } from "vue-property-decorator";
 import { SpotifyPoller } from "./helpers/spotify-poller";
 
-import { initSpotifyPlaybackSdk } from "../../../spotify";
-
 @Component({
   name: "SpotifyPlayer"
 })
@@ -24,12 +22,8 @@ export default class SpotifyPlayer extends Vue {
         this.store,
         {
           singlePoller: true,
-          enabled: false,
-          initSdk: () => {
-            initSpotifyPlaybackSdk(cb =>
-              cb(this.store.state.user.spotify.token)
-            );
-          }
+          enabled: true,
+          enableLogging: false
         }
       );
 

@@ -32,7 +32,7 @@ export default class YouTubePlayer extends Vue {
     this.player = player;
     this.poller = new YouTubePlayerPoller(player, this.$services.player, {
       singleInstance: true,
-      pollRateMs: 100
+      pollRateMs: 300
     });
 
     const youtubePlayer = this.$services.youtubePlayer;

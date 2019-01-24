@@ -159,6 +159,13 @@ export default class MusicSourceConfigDrawer extends Vue {
           loggedInOnly: true,
           icon: "clear",
           action: () => this.clearSpotifyPlaylists()
+        },
+        {
+          text: "Transfer Playback to PlayBliss",
+          loggedInOnly: true,
+          icon: "",
+          action: () =>
+            this.$services.spotifyPlayer.transferPlaybackToLocalPlayer()
         }
       ]
     }
